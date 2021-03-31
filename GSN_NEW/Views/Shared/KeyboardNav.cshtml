@@ -1,0 +1,24 @@
+﻿<script type="text/javascript" language="javascript">
+    //
+    jQuery(function($) {
+        $(window).keydown(function (e)
+        {
+            if (e.altKey && e.keyCode == 78)
+            {
+                var toolbarbuttons = $('.k-grid').find('.k-grid-toolbar > .k-button');
+
+                if (toolbarbuttons.length > 0)
+                {
+                    $.each(toolbarbuttons, function (i, v) {
+                        var go = true; 
+                        if ($(v).hasClass('k-grid-add')) {
+                            go = false;
+                            $(v).click();
+                        }
+                        return go;
+                    });
+                }
+            }
+        });
+    });
+</script>

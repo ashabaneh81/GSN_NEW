@@ -1,0 +1,91 @@
+﻿<li class="green">
+    <a data-toggle="dropdown" class="dropdown-toggle" href="#" id="staff-msgs-notif">
+        <i class="ace-icon fa fa-envelope icon-animated-vertical"></i>
+        <span class="badge badge-success" id="staff-msgs-notif-count">0</span>
+    </a>
+
+    <ul class="dropdown-menu-left dropdown-navbar dropdown-menu dropdown-caret dropdown-close">
+        <li class="dropdown-header">
+            <i class="ace-icon fa fa-envelope-o"></i>
+            <span id="staff-msgs-notif-header-count">0</span> Messages
+        </li>
+
+        <li class="dropdown-content">
+            <ul class="dropdown-menu dropdown-navbar" id="staff-msgs-notif-ul">
+            </ul>
+        </li>
+
+        <li class="dropdown-footer"><a href="#" id="msg-notifs-load-more">Load more</a></li>
+    </ul>
+</li>
+
+<script type="text/javascript" language="javascript">
+    jQuery(function ($)
+    {//
+        BT.Ajax.GET('@Url.Action("GetNewMessages", "Home")',
+            null,
+            function(d) {
+                $('#staff-msgs-notif-count').html(d.length);
+                $('#staff-msgs-notif-header-count').html(d.length);
+
+                var res = '';
+                $.each(d, function(i, v) {
+                    res += '<li data-msgtoid="' + v.Id + '">' +
+                        '<a href="#" data-typename="' + v.MsgType + '" data-typeid="' + v.TaskId + '" class="xTaskMsgs">' +
+                        '<div class="clearfix">' +
+                        '<span class="pull-left">' +
+                        v.StaffName + ': ' + v.MsgTxt +
+                        '</span>' +
+                        '</div>' +
+                        '</a>' +
+                        '</li>';
+                });
+
+                $('#staff-msgs-notif-ul').append(res);
+
+                $('.xTaskMsgs').off('click').on('click', function ()
+                {
+                    BT.Chat.show($(this).data('typename'), $(this).data('typeid'), '@Url.Action("GetMsgsById", "Home")', '@Url.Action("SendMsg", "Home")');
+                });
+            },
+            false);
+
+        var lastMsgNotifPage = 0;
+        $('#msg-notifs-load-more').off('click').on('click', function (e)
+        {
+            e.preventDefault();
+            e.stopPropagation();
+
+            BT.Ajax.GET('@Url.Action("LoadMoreMsgs", "Home")',
+                { page: lastMsgNotifPage },
+                function (d)
+                {
+                    lastMsgNotifPage = d.Page;
+
+                    var res = '';
+
+                    $.each(d.Tasks, function (i, v)
+                    {
+                        res += '<li data-msgtoid="' + v.Id + '">' +
+                        '<a href="#" data-typename="' + v.MsgType + '" data-typeid="' + v.TypeId + '" class="xTaskMsgs">' +
+                        '<div class="clearfix">' +
+                        '<span class="pull-left">' +
+                        v.StaffName + ': ' + v.Msg +
+                        '</span>' +
+                        '</div>' +
+                        '</a>' +
+                        '</li>';
+                    });
+
+                    $('#staff-msgs-notif-ul').append(res);
+
+                    $('.xTaskMsgs').off('click').on('click', function ()
+                    {
+                        BT.Chat.show($(this).data('typename'), $(this).data('typeid'), '@Url.Action("GetMsgsById", "Home")', '@Url.Action("SendMsg", "Home")');
+                    });
+                },
+                false);
+        })
+        .trigger('click');
+    });
+</script>

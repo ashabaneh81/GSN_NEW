@@ -1,0 +1,361 @@
+﻿@Html.Partial("GridMenu")
+@Html.Partial("ConfirmDialog")
+@Html.Partial("FilterAll")
+
+@using GSN_ERP.Models
+
+@functions {
+    public class MyClass
+    {
+        public string Id { get; set; }
+        public int NameAr { get; set; }
+    }
+}
+<style>
+    .lov {
+        background-color: red;
+    }
+
+        .lov:focus {
+            background-color: yellow;
+        }
+</style>
+<div class="k-rtl">
+    @(Html.Kendo().Window()
+        .Name("ValidationReverseWindow")
+        .Width(500)
+        .Title("تنبيه !")
+        .Visible(false)
+        .Modal(true)
+        .Draggable()
+    )
+</div>
+
+<div class="k-rtl">
+    @(Html.Kendo().Window()
+                  .Name("errorWindow").HtmlAttributes(new { @style = "z-index:9999" })
+            //.Width(600)
+          .Title("خطأ")
+          .Visible(false)
+          .Modal(true)
+          .Draggable()
+          .Resizable()
+    )
+</div>
+
+<div class="k-rtl">
+    @(Html.Kendo().Window()
+        .Name("GridWindow")
+        .Width(700)
+        .Title("شاشة البحث")
+        .Visible(false)
+        .Modal(true)
+        .Draggable()
+        .Content(@<text>
+            <div class="row k-rtl">
+                @(Html.Kendo().Grid<FIXED_ERP_Model>()
+     .Name("Grid")
+    .Columns(columns =>
+    {
+        columns.Bound(c => c.VALUE);
+        columns.Bound(c => c.NAME);
+    })
+        .Navigatable()
+        .Scrollable()
+        .Resizable(resize => resize.Columns(true))
+        .Selectable(selectable => selectable
+        .Mode(GridSelectionMode.Single))
+                .Filterable(filterable => filterable
+                .Extra(false)
+                .Operators(operators => operators
+                    .ForString(str => str.Clear()
+                        .Contains("يحتوي")
+                        .IsEqualTo("مساو ل")
+                        .StartsWith("يبدأ ب")
+                    ))
+                )
+        .Pageable(pageable => pageable
+            .Refresh(true)
+            .PageSizes(new List<Object> { 5, 10, 20, 50, 100, 200, "All" })
+            .ButtonCount(5))
+            .Navigatable()
+            .Reorderable(reorder => reorder.Columns(true))
+         .Filterable(ftb => ftb.Mode(GridFilterMode.Row))
+            .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Model(model =>
+                        {
+                            model.Id(x => x.VALUE);
+                        })
+                        //.Read(read => read.Action("ReadLovAccounts", "Journal"))
+        )
+        .AutoBind(false)
+                )
+            </div>
+        </text>)
+    )
+</div>
+
+<script type="text/x-kendo-template" id="ValidationReverseTemplate">
+    <h2 class="red">#=msg#</h2>
+    <hr />
+
+    <button class="k-button" id="confirmPrintButton">
+        <span class="k-icon k-i-close"></span>
+        هل تريد الطباعة
+    </button>
+
+</script>
+
+
+
+<script>
+    $(window).load(function () {
+        var lastRequestType;
+
+        function onErrorHandler(e) {
+            var ew = $('#errorWindow'),
+                    msg = '',
+                    grid = e.eThis;
+
+            var ev = e.event;
+
+            ew.prev().css('background-color', '#F77878').css('color', '#FDFDFD');
+
+            if (e.event.status === 'customerror') {
+                if ($.type(e.event.errors) === 'string') {
+                    msg += '<p>' + e.event.errors + '</p>';
+                } else {
+                    $.each(e.event.errors, function (ix, vx) {
+                        if ('errors' in vx) {
+                            $.each(vx.errors, function () {
+                                msg += '<p>' + this + '</p>';
+                            });
+                        }
+                    });
+                }
+            }
+            else {
+                msg += '<p>Internal server error</p>';
+            }
+
+            ew.html(msg);
+            if (lastRequestType === 'destroy') grid.cancelChanges();
+            else if (lastRequestType === 'update' || lastRequestType === 'create') {
+                var grid2 = $(e.kGrid).data("kendoGrid");
+                //var gridName = eThis.options.table.context.id
+
+                grid2.one("dataBinding", function (e) {
+                    e.preventDefault();  // cancel grid rebind if error occurs//
+
+                });
+
+            }
+            var divgrid = e.kGrid;//e.sender.options.table.parent('div')[0].id;//$('.k-grid').first();
+            var mygrid = $(divgrid).data('kendoGrid');
+            ew.data('kendoWindow').center().open();
+            kendo.ui.progress(mygrid.editable.element, false);
+            mygrid.editable.element.find(".k-grid-update").off("click", stopEvent);
+        }
+
+        $('.k-grid').each(function (i, v) {
+            BT.Grid.kOnRequestStart(v, function (e) { lastRequestType = e.event.type; });
+
+            BT.Grid.kOnDetailExpand(v, function onDetailExpand(e) {
+                var parentGrid = e.event.masterRow.closest('.k-grid');
+
+                //var grandParent = parentGrid.parent();
+
+                //if (grandParent.length && grandParent.hasClass('row k-rtl') && grandParent.parent().attr('id') === 'pageContentDiv')
+                //{
+                //    $(window).off('resize');
+                //    if ($('body').hasClass('noScroll'))
+                //    {
+                //        $('body').removeClass('noScroll');
+                //    }
+                //   // $('body').css('overflow', 'auto !important');
+                //}
+
+                var parentGridContent = parentGrid.find('.k-grid-content').first(),
+                    parentGridContentHeight = parentGridContent.height(),
+                    masterRowHeight = e.event.masterRow.height(),
+                    detailRow = e.event.detailRow,
+                    detailCell = detailRow.find('.k-detail-cell'),
+                    childGrid = e.event.detailRow.find('.k-grid').first(),
+                    detailRowHeight = detailRow.height(),
+                    scrollbarHeight = parentGridContent.get(0).offsetHeight - parentGridContent.get(0).clientHeight,
+                    detailCellHeight = detailCell.height(),
+                    padding = detailRowHeight - detailCellHeight,
+                    //dHeight = parentGridContentHeight - masterRowHeight - padding - scrollbarHeight;
+                    dHeight = parentGridContentHeight - masterRowHeight - padding - scrollbarHeight;
+
+
+
+                //var x;
+
+                if (!detailRow.hasClass('autoResized')) {
+                    //grandParent.height(parentGridContent.height() + dHeight);
+                    //BT.Grid.kResize(grandParent);
+
+                    detailCell.height(dHeight);
+
+                    BT.Grid.kAddFilterAll(childGrid);
+
+                    BT.Grid.kHideToolbars(childGrid);
+
+                    BT.Grid.kOnError(childGrid, onErrorHandler);
+
+                    //BT.Grid.kAddMenu(childGrid);
+
+                    BT.Grid.kAddKeyboardNav(childGrid);
+
+                    BT.Grid.kOnSelect(childGrid, function (ge) {
+                        BT.Grid.kAddToolbarButtons(childGrid);
+                    });
+
+                    detailRow.addClass('autoResized');
+
+                    BT.Grid.kOnDataBound(childGrid, function () { BT.Grid.kResize(childGrid.parent()); });
+                }
+
+                BT.Grid.kOnDetailExpand(childGrid, onDetailExpand);
+            });
+
+            BT.Grid.kOnError(v, onErrorHandler);
+
+            //BT.Grid.kAddMenu(v);
+
+            BT.Grid.kOnSelect(v, function (ge) {
+                BT.Grid.kAddToolbarButtons(v);
+            });
+
+            BT.Grid.kAddKeyboardNav(v);
+        });
+    });
+    function onDetailsSave(e) {
+        kendo.ui.progress(e.container, true);
+        e.container.find(".k-grid-update").click(stopEvent);
+    }
+    function stopEvent(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    function onCopy(e) {
+        e.preventDefault()
+        var grid = this;
+        var newdi = grid.dataItem($(e.currentTarget).closest('tr')).toJSON();
+        newdi.ID = 0;;
+        var dataSource = grid.dataSource;
+        var total = dataSource.data().length;
+        if (total) {
+            //dataSource.insert(total, /*newdi*/{ PYVC_ID: di.PYVC_ID, ACCOUNT_NO: di.ACCOUNT_NO,AccountName:di.AccountName, REF_ID: di.REF_ID, PAYMENT_METHOD: di.PAYMENT_METHOD, AMT: di.AMT, CURN_CODE: di.CURN_CODE, CHEQUE_NO: di.CHEQUE_NO, DUE_DATE: di.DUE_DATE });
+            dataSource.add(newdi);
+            //dataSource.page(dataSource.totalPages());
+            //var newRow = grid.tbody.children().last();
+
+            //grid.editRow(newRow);
+            // newdi.trigger('change');
+            dataSource.sync();
+        }
+
+    }
+
+    function showReverseDialog(msg, voucherType, voycherNo, journalNo, loginUser) {
+        //var voucherType = voucherType;
+        var cw = $('#ValidationReverseWindow').data('kendoWindow');
+        var wr = kendo.template($('#ValidationReverseTemplate').html());
+        var data = { msg: msg };
+        cw.content(wr(data)/*(data)*/);
+        cw.setOptions({
+            width: 500
+        });
+        cw.open().center();
+        $('#confirmPrintButton').off('click').on('click', function () {
+            //var cw = $('#ValidationconfirmWindow').data('kendoWindow');
+            var pdfUrl = '@Url.Action("GetPdf", "DRNotes")';
+            pdfUrl = pdfUrl + "?type="+ voucherType +"&id=" + voycherNo + "&login=" + loginUser;
+            window.open(pdfUrl);
+            window.onload = function (e) {
+                this.print(false);
+            }
+            var jounalUrl = '@Url.Action("GetPdf", "DRNotes")';
+            jounalUrl = jounalUrl + "?type=J&id=" + journalNo + "&login=" + loginUser;
+            window.open(jounalUrl);
+            window.onload = function (e) {
+                this.print(false);
+            }
+            cw.close();
+        });
+
+    }
+
+    function showLovGrid(input, url, data, name) {
+        //alert(name);
+        var cw = $('#GridWindow').data('kendoWindow');
+        cw.center().open();
+        var grid = $("#Grid").data("kendoGrid");
+        grid.refresh();
+        var ds = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: url
+                }
+            },
+            pageSize: 50
+        });
+        var grid = $("#Grid").data("kendoGrid");
+        grid.setDataSource(ds);
+        grid.dataSource.read();
+        var grid = $("#Grid").data("kendoGrid");
+        //var name = $(input).attr("name");
+        $("#Grid").delegate("tbody>tr", "dblclick", function () {
+            var model = grid.dataItem($(this));
+            //data.set(name, model.VALUE);
+            //data.trigger('change');
+            if (input != null) {
+                $(input).val(model.VALUE);
+                $(input).focus();
+                data.set(name, model.VALUE);
+                data.trigger('change');
+            }
+            input = null;
+            name = null;
+            cw.close();
+        });
+    }
+
+    function toLov(input,url,data,name)
+    {
+        $(input).css('background', '#d1d1d1');
+        $(input).focus(function () {
+            $(this).css({ 'background': 'yellow' });
+        });
+        $(input).blur(function () {
+            $(this).css({ 'background': '#d1d1d1' });
+        });
+        //$(input).addClass('lov');
+        $(input).keydown(function (event) {
+            var keyCode = (event.keyCode ? event.keyCode : event.which);
+            if (keyCode == 120) {
+                showLovGrid(input, url, data, name);
+            }
+        });
+    }
+
+    function formattedDate(d)
+    {
+        if (d != null && d != "")
+        {
+            let month = String(d.getMonth() + 1);
+            let day = String(d.getDate());
+            const year = String(d.getFullYear());
+
+            if (month.length < 2) month = '0' + month;
+            if (day.length < 2) day = '0' + day;
+
+            return day + "/" + month + "/" + year;
+        }
+        return ""
+    }
+
+</script>

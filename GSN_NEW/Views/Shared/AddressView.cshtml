@@ -1,0 +1,445 @@
+﻿
+@{
+    Layout = null;
+}
+
+<script>
+
+    function validate(e) {
+        var win = $("#errorWindow");
+        win.prev().css('background-color', '#F77878').css('color', '#FDFDFD');
+        if (this.value() && this.selectedIndex == -1) {
+            var dt = this.dataSource._data[0];
+            this.text('');
+            win.data("kendoWindow").center().content("خطأ....الرجاء اختيار قيمة موجودة في القائمة").open();
+
+        }
+    }
+    function GetDataForLandAndappartment() {
+        // alert($("#HOD_CODE").val() + "----" + $("#HAY_ID").val() + "-----" + $("#LAND_ID").val() + "----" + $("#TABUO_BUILDING").val() + "-----" + $("#TABUO_FLOOR").val())
+        return {
+
+            HodIdString: $("#HOD_CODE").val(),
+            HayIdString: $("#HAY_ID").val(),
+            LAND_PIECES_ID: $("#LAND_ID").val(),
+            TABUO_BUILDING: $("#TABUO_BUILDING").val(),
+            TABUO_FLOOR: $("#TABUO_FLOOR").val(),
+            APT_NO: $("#APRTMENT_NO").val(),
+            STREET_NO: $("#GIS_STREET_CODE").val(),
+            BUILDINGNUMBER: $("#GIS_BUILDING_CODE").val(),
+            ROAD_NM: ($("#GIS_STREET_CODE").val() != null && $("#GIS_STREET_CODE").val() != "")?parseFloat($("#GIS_STREET_CODE").val()):null,
+            PARCEL_NO: $("#LAND_ID").val(),
+            QUARTER_NO_STRING: $("#HAY_ID").val(),
+            BLOCK_NO_STRING: $("#HOD_CODE").val(),
+
+        };
+
+    }
+
+    function GetForGisStreet()
+    {
+        return {
+
+           
+            BLOCK_NO_STRING: $("#HOD_CODE").val(),
+            QUARTER_NO_STRING: $("#HAY_ID").val(),
+            PARCEL_NO: $("#LAND_ID").val()
+
+        };
+    }
+
+</script>
+<div class="container k-rtl container-fluid">
+    <div class="row form-horizontal k-rtl" style="border-radius:initial">
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="col-sm-3  no-padding-left">الحوض</label>
+                <div class="col-sm-10">
+                    @(Html.Kendo().ComboBox().Name("HOD_CODE").Enable(Model != null ? Model.ForDetail == true ? false : true : true)
+                     .HtmlAttributes(new { data_value_primitive = "true", @class = "k-validate" }).Events(c => c.Change("validate"))
+              .Placeholder("اختر")
+              .DataTextField("NAME_AR")
+              .DataValueField("ID")
+              .Filter(FilterType.Contains)
+              .DataSource(source =>
+              {
+                  source.Custom()
+                .Type("aspnetmvc-ajax")
+                 .Transport(transport =>
+                 {
+                     transport.Read(r => r.Action("ReadHodVoutcherTax", "Addreses"));
+                 }).Schema(schema =>
+                 {
+                     schema.Data("Data") //define the [data](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.data) option
+                         .Total("Total"); //define the [total](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.total) option
+                 }).ServerFiltering(true)
+
+                  ;
+              })
+
+                    )
+
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="col-sm-6  no-padding-left">الحي</label>
+                <div class="col-sm-10">
+
+
+                    @(Html.Kendo().ComboBox().Name("HAY_ID").Enable(Model != null ? Model.ForDetail == true ? false : true : true)
+                     .HtmlAttributes(new { data_value_primitive = "true", @class = "k-validate" }).Events(c => c.Change("validate"))
+              .Placeholder("اختر")
+
+              .DataTextField("NAME_AR").Enable(false)
+              .DataValueField("ID")
+              .Filter(FilterType.Contains)
+              .DataSource(source =>
+              {
+                  source.Custom()
+                .Type("aspnetmvc-ajax")
+                 .Transport(transport =>
+                 {
+                     transport.Read(r => r.Action("ReadHayVoutcherTax", "Addreses").Data("GetDataForLandAndappartment"));
+                 }).Schema(schema =>
+                 {
+                     schema.Data("Data") //define the [data](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.data) option
+                         .Total("Total"); //define the [total](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.total) option
+                 }).ServerFiltering(true)
+
+                ;
+              }).Enable(false)
+              .AutoBind(false).CascadeFrom("HOD_CODE")
+
+                    )
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="col-sm-6  no-padding-left">القطعة</label>
+                <div class="col-sm-10">
+
+                    @(Html.Kendo().ComboBox().Name("LAND_ID").Enable(false).Enable(Model != null ? Model.ForDetail == true ? false : true : true)
+                     .HtmlAttributes(new { data_value_primitive = "true", @class = "k-validate" }).Events(c => c.Change("validate"))
+              .Placeholder("اختر")
+
+              .DataTextField("NAME_AR")
+              .DataValueField("ID")
+              .Filter(FilterType.Contains)
+              .DataSource(source =>
+              {
+                  source.Custom()
+                .Type("aspnetmvc-ajax")
+                 .Transport(transport =>
+                 {
+                     transport.Read(r => r.Action("ReadLandVoutcherTax", "Addreses").Data("GetDataForLandAndappartment"));
+                 }).Schema(schema =>
+                 {
+                     schema.Data("Data") //define the [data](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.data) option
+                         .Total("Total"); //define the [total](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.total) option
+                 }).ServerFiltering(true)
+
+                  ;
+              }).Enable(false)
+              .AutoBind(false).CascadeFrom("HAY_ID")
+
+                    )
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row form-horizontal k-rtl" style="border-radius:initial">
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="col-sm-6  no-padding-left">بناية (طابو)</label>
+                <div class="col-sm-10">
+                    @(Html.Kendo().ComboBox().Name("TABUO_BUILDING").Enable(false).Enable(Model != null ? Model.ForDetail == true ? false : true : true)
+                     .HtmlAttributes(new { data_value_primitive = "true", @class = "k-validate" }).Events(c => c.Change("validate"))
+              .Placeholder("اختر")
+              .DataTextField("NAME_AR")
+              .DataValueField("ID")
+              .Filter(FilterType.Contains)
+              .DataSource(source =>
+              {
+                  source.Custom()
+                .Type("aspnetmvc-ajax")
+                 .Transport(transport =>
+                 {
+                     transport.Read(r => r.Action("Readbuilding", "AddVoutcherTax").Data("GetDataForLandAndappartment"));
+                 }).Schema(schema =>
+                 {
+                     schema.Data("Data") //define the [data](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.data) option
+                         .Total("Total"); //define the [total](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.total) option
+                 }).ServerFiltering(true)
+
+                  ;
+              }).Enable(false)
+              .AutoBind(false).CascadeFrom("LAND_ID")
+
+                    )
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-sm-3">
+        <div class="form-group">
+            <label class="col-sm-6  no-padding-left">طابق(طابو) </label>
+            <div class="col-sm-10">
+                @(Html.Kendo().ComboBox().Name("TABUO_FLOOR").Enable(false).Enable(Model != null ? Model.ForDetail == true ? false : true : true)
+                 .HtmlAttributes(new { data_value_primitive = "true", @class = "k-validate" }).Events(c => c.Change("validate"))
+          .Placeholder("اختر")
+
+          .DataTextField("NAME_AR")
+          .DataValueField("ID")
+          .Filter(FilterType.Contains)
+          .DataSource(source =>
+          {
+              source.Custom()
+            .Type("aspnetmvc-ajax")
+             .Transport(transport =>
+             {
+                 transport.Read(r => r.Action("Readfloor", "AddVoutcherTax").Data("GetDataForLandAndappartment"));
+             }).Schema(schema =>
+             {
+                 schema.Data("Data") //define the [data](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.data) option
+                     .Total("Total"); //define the [total](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.total) option
+             }).ServerFiltering(true)
+
+              ;
+          }).Enable(false)
+          .AutoBind(false).CascadeFrom("TABUO_BUILDING")
+
+                )
+
+            </div>
+        </div>
+    </div>
+
+        <div class="col-sm-3">
+        <div class="form-group">
+            <label class="col-sm-6  no-padding-left">شقة (طابو)</label>
+            <div class="col-sm-10">
+                @(Html.Kendo().ComboBox().Name("TABUO_APRTMENT")
+                 .HtmlAttributes(new { data_value_primitive = "true", @class = "k-validate" }).Events(c => c.Change("validate"))
+          .Placeholder("اختر")
+          .DataTextField("NAME_AR")
+          .DataValueField("ID")
+          .Filter(FilterType.Contains)
+          .DataSource(source =>
+          {
+              source.Custom()
+            .Type("aspnetmvc-ajax")
+             .Transport(transport =>
+             {
+                 transport.Read(r => r.Action("Readapartment", "AddVoutcherTax").Data("GetDataForLandAndappartment"));
+             }).Schema(schema =>
+             {
+                 schema.Data("Data") //define the [data](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.data) option
+                     .Total("Total"); //define the [total](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.total) option
+             }).ServerFiltering(true)
+
+              ;
+          }).Enable(false)
+          .AutoBind(false).CascadeFrom("TABUO_FLOOR")
+
+                )
+            </div>
+        </div>
+    </div>
+
+
+
+    </div>
+
+    <div class="row form-horizontal k-rtl" style="border-radius:initial">
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="col-sm-6  no-padding-left">المنطقة</label>
+                <div class="col-sm-10">
+                    @(
+ Html.Kendo().ComboBox()
+                         .Name("REGION_CODE")
+.HtmlAttributes(new { data_value_primitive = "true" }).Events(c => c.Change("validate"))
+ .Placeholder("اختر المنطقة")
+ .Filter(FilterType.Contains)
+ .MinLength(1)
+ .DataSource(source =>
+ {
+     source.Custom()
+         .ServerFiltering(true)
+         .Type("aspnetmvc-ajax") //Set this type if you want to use DataSourceRequest and ToDataSourceResult instances
+         .Transport(transport =>
+         {
+             transport.Read("ReadRegionlockup", "Addreses", new { FromComboBox = "true" });
+         })
+         .Schema(schema =>
+         {
+             schema.Data("Data") //define the [data](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.data) option
+                 .Total("Total"); //define the [total](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.total) option
+         });
+ }).DataTextField("NAME_AR") //Specifies which property of the Product to be used by the combobox as a text.
+ .DataValueField("ID") //Specifies which property of the Product to be used by the combobox as a value.
+                       //.Value(Model.Id.ToString())
+                    )
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="col-sm-6  no-padding-left">الشارع(GIS) </label>
+                <div class="col-sm-10">
+                    @(Html.Kendo().ComboBox().Name("GIS_STREET_CODE")
+                 .HtmlAttributes(new { data_value_primitive = "true", @class = "k-validate" }).Events(c => c.Change("validate"))
+          .Placeholder("اختر")
+          .DataTextField("NAME_AR")
+          .DataValueField("ID")
+          .Filter(FilterType.Contains)
+          .DataSource(source =>
+          {
+              source.Custom()
+            .Type("aspnetmvc-ajax")
+             .Transport(transport =>
+             {
+                 transport.Read(r => r.Action("ReadStreet", "Addreses").Data("GetForGisStreet"));
+             }).Schema(schema =>
+             {
+                 schema.Data("Data") //define the [data](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.data) option
+                     .Total("Total"); //define the [total](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.total) option
+             }).ServerFiltering(true)
+
+              ;
+          })//.Enable(false)
+          //.AutoBind(false).CascadeFrom("LAND_ID")
+
+                    )
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="col-sm-6  no-padding-left">البناية(GIS)</label>
+                <div class="col-sm-10">
+
+                    @(Html.Kendo().ComboBox().Name("GIS_BUILDING_CODE")
+                 .HtmlAttributes(new { data_value_primitive = "true", @class = "k-validate" }).Events(c => c.Change("validate"))
+          .Placeholder("اختر")
+          .DataTextField("NAME_AR")
+          .DataValueField("ID")
+          .Filter(FilterType.Contains)
+          .DataSource(source =>
+          {
+              source.Custom()
+            .Type("aspnetmvc-ajax")
+             .Transport(transport =>
+             {
+                 transport.Read(r => r.Action("ReadBuildingGIS", "Addreses").Data("GetDataForLandAndappartment"));
+             }).Schema(schema =>
+             {
+                 schema.Data("Data") //define the [data](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.data) option
+                     .Total("Total"); //define the [total](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.total) option
+             }).ServerFiltering(true)
+
+              ;
+          }).Enable(false)
+          .AutoBind(false).CascadeFrom("GIS_STREET_CODE")
+
+                    )
+
+
+
+
+                
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+    <div class="row form-horizontal k-rtl" style="border-radius:initial">
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="col-sm-6  no-padding-left">رقم الشقة(ترقيم داخلي)</label>
+                <div class="col-sm-10">
+                    @(Html.Kendo().ComboBox().Name("APRTMENT_NO")
+                 .HtmlAttributes(new { data_value_primitive = "true", @class = "k-validate" }).Events(c => c.Change("validate"))
+          .Placeholder("اختر")
+          .DataTextField("NAME_AR")
+          .DataValueField("ID")
+          .Filter(FilterType.Contains)
+          .DataSource(source =>
+          {
+              source.Custom()
+            .Type("aspnetmvc-ajax")
+             .Transport(transport =>
+             {
+                 transport.Read(r => r.Action("ReadApartment", "Addreses").Data("GetDataForLandAndappartment"));
+             }).Schema(schema =>
+             {
+                 schema.Data("Data") //define the [data](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.data) option
+                     .Total("Total"); //define the [total](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.total) option
+             }).ServerFiltering(true)
+
+              ;
+          }).Enable(false).CascadeFrom("GIS_BUILDING_CODE")
+          .AutoBind(false)
+                    )
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label class="col-sm-6  no-padding-left">الرمز البريدي</label>
+                <div class="col-sm-10">
+
+
+                    @(Html.Kendo().ComboBox().Name("ZIP_CODE")
+                 .HtmlAttributes(new { data_value_primitive = "true", @class = "k-validate" }).Events(c => c.Change("validate"))
+          .Placeholder("اختر")
+          .DataTextField("NAME_AR")
+          .DataValueField("ID")
+          .Filter(FilterType.Contains)
+          .DataSource(source =>
+          {
+              source.Custom()
+            .Type("aspnetmvc-ajax")
+             .Transport(transport =>
+             {
+                 transport.Read(r => r.Action("ReadZIPCODE", "Addreses").Data("GetDataForLandAndappartment"));
+             }).Schema(schema =>
+             {
+                 schema.Data("Data") //define the [data](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.data) option
+                     .Total("Total"); //define the [total](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.total) option
+             }).ServerFiltering(true)
+
+              ;
+          }).Enable(false)
+          .AutoBind(false).CascadeFrom("APRTMENT_NO")
+                    )
+
+                   
+                </div>
+            </div>
+        </div>
+
+     
+        
+
+    </div>
+</div>
+

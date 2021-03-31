@@ -1,0 +1,76 @@
+﻿@using System.Globalization
+@using System.Threading;
+<style>
+    /*.localization ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }*/
+
+    /*.localization li {
+        float: left;
+        border-right: 1px solid #bbb;
+    }
+
+    .localization li:last-child {
+            border-right: none;
+        }
+
+    .localization li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+    .localization li a:hover:not(.active) {
+        background-color: #111;
+    }
+
+    .localization .active {
+        background-color: #4CAF50;
+    }*/
+</style>
+@*<div class="localization">
+    <ul style="margin-bottom:10px;">*@
+        @{
+            CultureInfo currentCulture = Thread.CurrentThread.CurrentCulture;
+            var CultureName = currentCulture.Name;
+
+            @*<li><a class="active" href="@Url.Action("ChangeCurrentCulture", "Delegation", new { id=0})">English</a></li>
+
+            <li><a href="@Url.Action("ChangeCurrentCulture", "Delegation", new { id=1})">عربي</a></li>*@
+        }
+    @*</ul>  
+</div>*@
+
+@if (CultureName == "en")
+{ 
+    <script>
+        $(".page-header").append("<ul class='breadcrumb'>"+
+							     "<li><a href='@Url.Action("ChangeCurrentCulture", "Delegation", new { id=0})'>English</a></i>"+
+						         "<li><a href='@Url.Action("ChangeCurrentCulture", "Delegation", new { id=1})'>عربي</a></li>" +
+					             "</ul>");
+        $("body").attr("dir", "ltr");
+        $("body").removeClass("rtl");
+        $(window).load(function () {
+            $(".k-grid-toolbar .filterAllUiCss").removeClass("pull-left");
+            $(".k-grid-toolbar .filterAllUiCss").addClass("pull-right");
+            $(".k-grid-toolbar").find("[type=button]").eq(1).text("Search");
+            $(".k-grid-toolbar").find("[type=text]").prop("placeholder", "Search in table");
+        });
+
+    </script>
+}
+else
+{
+    <script>
+        $(".page-header").append("<ul class='breadcrumb'>"+
+							     "<li><a href='@Url.Action("ChangeCurrentCulture", "Delegation", new { id=0})'>English</a></i>"+
+						         "<li><a href='@Url.Action("ChangeCurrentCulture", "Delegation", new { id=1})'>عربي</a></li>" +
+					             "</ul>");
+        $('div').addClass('k-rtl');
+    </script>
+}

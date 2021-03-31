@@ -1,0 +1,2339 @@
+﻿@model GSN_NEW.Models.HomeModel
+@using ErpDal
+@using GSN_NEW.Helpers
+@using GSN_NEW.Models
+@using FixedERPValues = GSN_NEW.Helpers.FixedERPValues
+
+@{
+    ViewBag.Title = "الرئيسية";
+    var memoId1 = ViewBag.MemoId;
+    var isManger = ViewBag.IsManger;
+    var isSectionM = ViewBag.IsSectionM;
+}
+
+
+@Html.Partial("GridMenu")
+@Html.Partial("ErrorHandler")
+@Html.Partial("ConfirmDialog")
+@Html.Partial("PublicSearch")
+@*@Html.Partial("FilterAll")*@
+@*@Html.Partial("FixedGridHeight")*@
+
+@{
+    var isRamallah = FixedERPValues.GetValueAccount("IS_RAMALLAH");
+    var includeMemo = FixedERPValues.GetValueAccount("INCLUDE_MEMO");
+    var munManager = FixedERPValues.GetValueAccount("MUNICIPALITY_MANAGER");
+    var itManager = FixedERPValues.GetValueAccount("IT_MANAGER");
+    var viewDailyWork = FixedERPValues.GetValueAccount("VIEW_DAILY_WORK_TAB");
+
+    bool isMunManager = munManager == User.Identity.Name.UserCode() ? true : false;
+    bool isITManager = itManager == User.Identity.Name.UserCode() ? true : false;
+    var showMemo = includeMemo == "N" ? "hidden" : "";
+    using (var db = Db.Get())
+    {
+        var userCode = User.Identity.Name.UserCode();
+        var notifications = db.NOTIFICATION_ERP
+                              .Include("TASK_TYPES_ERP")
+                              .Where(x => x.TO_STAFF == userCode && x.NOTIFICATION_DATE <= System.DateTime.Now)
+                              .OrderByDescending(x => x.DATE_CREATED)
+                              .Take(10)
+                              .Select(x => new
+                              {
+                                  NameAr = x.NAME_AR,
+                                  DateCreated = x.DATE_CREATED,
+                                  TaskId = x.TASK_ID,
+                          //N
+                          Url = x.URL,
+                                  Id = x.ID,
+                          //
+
+                      }).ToList();
+
+        var notificationsSeha = db.NOTIFICATION_ERP
+                              .Include("TASK_TYPES_ERP")
+                              .Where(x => x.TO_STAFF == userCode && x.NOTIFICATION_DATE <= System.DateTime.Now && x.NOTIFICATION_TYPE == "S")   //Seha Notification
+                              .OrderByDescending(x => x.DATE_CREATED)
+                              .Take(10)
+                              .Select(x => new
+                              {
+                                  NameAr = x.NAME_AR,
+                                  DateCreated = x.DATE_CREATED,
+                                  TaskId = x.TASK_ID,
+                          //N
+                          Url = x.URL,
+                                  Id = x.ID,
+                          //
+
+                      }).ToList();
+
+        var notificationsWK = db.NOTIFICATION_ERP
+                              .Include("TASK_TYPES_ERP")
+                              .Where(x => x.TO_STAFF == userCode && x.NOTIFICATION_DATE <= System.DateTime.Now && x.NOTIFICATION_TYPE == "WK")
+                              .OrderByDescending(x => x.DATE_CREATED)
+                              .Take(10)
+                              .Select(x => new
+                              {
+                                  NameAr = x.NAME_AR,
+                                  DateCreated = x.DATE_CREATED,
+                                  TaskId = x.TASK_ID,
+                          //N
+                          Url = x.URL,
+                                  Id = x.ID,
+                          //
+
+                      }).ToList();
+
+        var colors = new HexColors();
+
+        var taskTypes = db.TASK_TYPES_ERP
+                          .ToList()
+                          .Select(x => new
+                          {
+                              Id = x.ID,
+                              NameAr = x.NAME_AR,
+                              IsManual = x.IS_MANUAL,
+                              Color = colors.GetRandom()
+                          })
+                          .ToArray();
+
+        <div class="row">
+
+            <input type="hidden" id="MemoidDraftAutoSave" name="MemoidDraftAutoSave" />
+            <div class="col-xs-12">
+                <div class="tabbable">
+                    <ul id="dashboard-tabs" class="nav nav-tabs">
+
+                            <li class="active">
+                                <a data-toggle="tab" href="#dashboard-tasks-tabNew">
+                                    <i class="ace-icon fa fa-tasks orange bigger-120"></i>
+                                    <b style="font-size: 17px">
+                                        المهام
+                                        <span class="badge badge-success" title="المجموع" id="taskUn">@Model.taskUncomplete</span>
+                                    </b>
+                                </a>
+                            </li>
+                            <li>
+                                <a data-toggle="tab" href="#dashboard-notifications-tab">
+                                    <i class="ace-icon fa fa-bell orange bigger-120"></i>
+
+
+                                    <b style="font-size: 17px">
+                                        الاشعارات
+                                    </b>
+                                    @*<span class="badge badge-danger">4</span>*@
+                                </a>
+                            </li>                              
+                        
+
+                    </ul>
+
+                    <div class="tab-content">
+                     <div id="dashboard-tasks-tabNew" class="tab-pane fade in active">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="widget-box" id="tasks-box">
+                                            <div class="widget-header">
+                                                <div class="widget-toolbar">
+
+                                                </div>
+                                                <div class="widget-toolbar no-border" style="float: right !important">
+                                                    <ul class="nav nav-tabs" id="tasks-tabNew">
+                                                        <li class="active">
+                                                            <a data-toggle="tab" href="#dashboard-tasks-tabNew1">
+                                                                @*onclick=" readTaskUnCompleted() "*@
+                                                                <b>
+                                                                    <table>
+                                                                        <tr>
+                                                                            <td>
+                                                                                المهام
+                                                                                @*<span class="badge badge-success" title="المجموع" id="taskUn">@Model.taskUncomplete</span>*@
+                                                                            </td>
+                                                                            <td></td>
+                                                                            <td></td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </b>
+                                                            </a>
+                                                        </li>
+                                                        @if (isRamallah == "Y")
+                                                        {
+                                                            <li>
+                                                                <a data-toggle="tab" href="#dashboard-tasks-tab-sendNew" onclick=" readTaskUnCompletedSend() ">
+                                                                    <b>
+                                                                        المهام المرسلة
+                                                                        @*<span class="badge badge-success" title="المجموع" id="taskUnSend">@Model.taskSendUncomplete</span>*@
+                                                                    </b>
+                                                                </a>
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <div class="widget-body" style="height: 100% !important">
+                                                @*700px*@
+                                                <div class="widget-main padding-4">
+                                                    @*<div class="scrollable" data-height="700">*@
+                                                    <div class="scrollable" data-height="700">
+                                                        <div class="tab-content padding-8">
+                                                            <div id="dashboard-tasks-tabNew1" class="tab-pane fade in active">
+                                                                <div class="row">
+                                                                    <div class="col-sm-12">
+                                                                        <div class="widget-box" id="tasks-box">
+                                                                            <div class="widget-header">
+                                                                                <div class="widget-toolbar">
+                                                                                </div>
+                                                                                <div class="widget-toolbar no-border" style="float: right !important">
+                                                                                    <ul class="nav nav-tabs" id="tasks-tabNew">
+                                                                                        <li class="active">
+                                                                                            <a data-toggle="tab" href="#unfinishedTask-tab">
+                                                                                                <b>
+                                                                                                    الغير منتهية
+                                                                                                    @*<span class="badge badge-success" title="المجموع" id="taskUnSend">@Model.taskUncomplete</span>*@
+                                                                                                </b>
+                                                                                            </a>
+                                                                                        </li>
+                                                                                        <li class="">
+                                                                                            <a data-toggle="tab" href="#finishedTask-tab" onclick="readTaskCompleted()">
+                                                                                                <b>
+                                                                                                    المنتهية
+                                                                                                    @*<span class="badge badge-error" title="المجموع" id="taskUnSend">@Model.taskSendUncomplete</span>*@
+                                                                                                </b>
+                                                                                            </a>
+                                                                                        </li>
+                                                                                    </ul>
+
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="widget-body" style="height: 100%!important">
+                                                                                <div class="widget-main padding-4">
+                                                                                    @*<div class="scrollable" data-height="700">*@
+                                                                                    <div class="scrollable" data-height="700">
+                                                                                        <div class="tab-content padding-8">
+                                                                                            <div id="unfinishedTask-tab" class="tab-pane active">
+
+                                                                                                <div class="scrollable" data-height="600" style="width: 100%">
+
+                                                                                                    <div class="tab-content  no-padding">
+                                                                                                        <div id="hr-tab" class="tab-pane active">
+                                                                                                            @Html.Action("TaskUnCompleted", "Home")
+                                                                                                        </div>
+                                                                                                        @*<div id="emun-tab" class="tab-pane fade">
+                                                                                                                @Html.Action("TaskUnCompletedType2", "Home")
+
+                                                                                                            </div>
+                                                                                                            <div id="finance-tab" class="tab-pane fade">
+                                                                                                                @Html.Action("TaskUnCompletedType3", "Home")
+                                                                                                            </div>
+                                                                                                            <div id="procurment-tab" class="tab-pane fade">
+                                                                                                                @Html.Action("TaskUnCompletedType4", "Home")
+                                                                                                            </div>
+
+                                                                                                            <div id="other-tab" class="tab-pane fade">
+                                                                                                                @Html.Action("TaskUnCompletedType5", "Home")
+                                                                                                            </div>*@
+                                                                                                    </div>
+                                                                                                </div>
+
+                                                                                            </div>
+                                                                                            <div id="finishedTask-tab" class="tab-pane ">
+                                                                                                @Html.Action("TaskCompleted", "Home")
+                                                                                            </div>
+
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div id="dashboard-tasks-tab-sendNew" class="tab-pane fade ">
+                                                                <div class="row">
+                                                                    <div class="col-sm-12">
+                                                                        <div class="widget-box" id="tasks-box-send">
+                                                                            <div class="widget-header">
+
+
+                                                                                <div class="widget-toolbar">
+
+                                                                                </div>
+
+                                                                                @*<h4 class="widget-title lighter smaller">
+                                                                                        <i class="ace-icon fa fa-tasks orange"></i><b>
+                                                                                            المهام المرسلة
+                                                                                        </b>
+                                                                                    </h4>*@
+
+                                                                                <div class="widget-toolbar no-border" style="float: right !important">
+                                                                                    <ul class="nav nav-tabs" id="tasks-tab-send">
+
+
+                                                                                        <li class="active">
+                                                                                            <a data-toggle="tab" href="#unfinished-task-tab-send" onclick=" readTaskUnCompletedSend() ">
+                                                                                                <b>
+
+                                                                                                    <table>
+                                                                                                        <tr>
+                                                                                                            <td>
+                                                                                                                الغير منتهية
+                                                                                                            </td>
+                                                                                                            <td>
+                                                                                                                @*<a class="search-tasks-send tooltip-info" href="#" typetask="N" data-action="settins" data-rel="tooltip" data-placement="top" title="مهام غير منتهية">
+                                                                                                                        <i class="ace-icon fa fa-search"></i>
+                                                                                                                    </a>*@
+                                                                                                            </td>
+                                                                                                            <td>
+                                                                                                                @*<button type="button" style="background-color: rgb(255, 127, 127);display:none" class="k-button" id="ResetUnfinishedsend">     <span role="presentation" class="k-icon k-i-redo"></span> </button>*@
+                                                                                                            </td>
+                                                                                                        </tr>
+                                                                                                    </table>
+
+
+
+                                                                                                </b>
+                                                                                            </a>
+                                                                                        </li>
+                                                                                        <li>
+                                                                                            <a data-toggle="tab" href="#calendar-task-tab-send">
+                                                                                                <b>
+                                                                                                    الرزنامة
+                                                                                                </b>
+                                                                                            </a>
+                                                                                        </li>
+                                                                                        <li>
+
+                                                                                            <a data-toggle="tab" href="#finished-task-tabY-send" onclick=" readTaskCompletedSend() ">
+
+                                                                                                <b>
+
+
+                                                                                                    <table>
+                                                                                                        <tr>
+                                                                                                            <td>
+                                                                                                                المهام المنتهية
+
+                                                                                                            </td>
+                                                                                                            <td>
+                                                                                                                <a class="search-tasks-send tooltip-info" href="#" typetask="Y" data-action="settins" data-rel="tooltip" data-placement="top" title="مهام غير منتهية">
+                                                                                                                    @*<i class="ace-icon fa fa-search"></i>*@
+                                                                                                                </a>
+                                                                                                            </td>
+                                                                                                            <td>
+                                                                                                                @*<button type="button" style="background-color: rgb(255, 127, 127);display:none" class="k-button" id="ResetFinishedSend">     <span role="presentation" class="k-icon k-i-redo"></span> </button>*@
+                                                                                                            </td>
+                                                                                                        </tr>
+                                                                                                    </table>
+
+                                                                                                </b>
+                                                                                            </a>
+
+
+                                                                                        </li>
+                                                                                    </ul>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="widget-body" style="height: 100%!important">
+                                                                                <div class="widget-main padding-4">
+                                                                                    <div data-height="700">
+                                                                                        <div class="tab-content padding-8">
+                                                                                            <div id="unfinished-task-tab-send" class="tab-pane active">
+                                                                                                @*@Html.Action("TaskUnCompletedSend", "Home")*@
+
+                                                                                            </div>
+
+                                                                                            <div id="calendar-task-tab-send" class="tab-pane fade">
+
+
+                                                                                                <div class="row k-rtl" style="margin: 5px 5px 0px 0px;">
+                                                                                                    @(Html.Kendo().Scheduler<SchedulerTaskViewModel>()
+.Name("scheduler1")
+.Height(425)
+.Editable(false)
+.Selectable(true)
+.Events(e =>
+{
+e.DataBound("scheduler_DataBound_Send");
+})
+.Timezone("Etc/UTC")
+.Resources(resource =>
+{
+resource.Add(m => m.TaskTypeId)
+.Title("NameAr")
+.DataTextField("NameAr")
+.DataValueField("Id")
+.DataColorField("Color")
+.BindTo(taskTypes);
+})
+.Views(views =>
+{
+views.DayView();
+views.WeekView();
+views.MonthView(x => x.Selected(true));
+views.AgendaView();
+views.TimelineView();
+})
+.DataSource(d => d
+.Model(m =>
+{
+m.Id(f => f.TaskId);
+m.Field(f => f.Title).DefaultValue("No title");
+})
+.Read("ReadSend", "TasksScheduler")
+)
+                                                                                                    )
+                                                                                                </div>
+                                                                                            </div>
+
+                                                                                            <div id="finished-task-tabY-send" class="tab-pane fade">
+
+                                                                                                @*@Html.Action("TaskCompletedSend", "Home")*@
+
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                     <div id="dashboard-notifications-tab" class="tab-pane fade">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="widget-box" id="notifications-box">
+                                        <div class="widget-header">
+                                            <h4 class="widget-title lighter smaller">
+                                                <i class="ace-icon fa fa-bell orange"></i>الاشعارات
+                                            </h4>
+
+                                            <div class="widget-toolbar no-border ">
+                                                <ul class="nav nav-tabs" id="notifications-tab">
+                                                    <li class="active">
+                                                        <a data-toggle="tab" href="#unfinished-notifications-tab"> كافة الاشعارات</a>
+                                                    </li>
+                                                    <li class="">
+                                                        <a data-toggle="tab" href="#WK-notifications-tab">اشعارات الوارد /كفالات </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        <div class="widget-body" style="height: 600px">
+                                            <div class="widget-main padding-4">
+                                                <div class="scrollable" data-height="600">
+                                                    <div class="tab-content padding-8">
+                                                        <div id="unfinished-notifications-tab" class="tab-pane active">
+                                                            <ul id="unfinished-notifications" class="item-list notification ">
+                                                                @{
+                                                                    foreach (var task in notifications)
+                                                                    {
+                                                                        var url = "";
+                                                                        var MemoToId = "";
+                                                                        if (!string.IsNullOrEmpty(task.Url))
+                                                                        {
+                                                                            var urlParts = task.Url.Replace("/", "\\").Split('\\').Where(x => !string.IsNullOrEmpty(x)).ToList();
+
+                                                                            if (urlParts.Count == 3)
+                                                                            {
+                                                                                if (urlParts[2].Contains("memoIn"))
+                                                                                {
+                                                                                    var firstSplit = urlParts[2].Split('&');
+                                                                                    var secondSplit = firstSplit[1].Split('=');
+                                                                                    if (firstSplit.Length > 2)
+                                                                                    {
+                                                                                        var thirdSplit = firstSplit[2].Split('=');
+                                                                                        MemoToId = thirdSplit[1];
+                                                                                    }
+                                                                                    var id = secondSplit[1];
+                                                                                    urlParts[0] = "Home";
+                                                                                    urlParts[1] = "MemoContent";
+                                                                                    url = urlParts[1] + "_" + id + "_" + MemoToId;
+
+                                                                                }
+                                                                                else if (urlParts[2].Contains("memoOut"))
+                                                                                {
+                                                                                    var firstSplit = urlParts[2].Split('&');
+                                                                                    var secondSplit = firstSplit[1].Split('=');
+                                                                                    if (firstSplit.Length > 2)
+                                                                                    {
+                                                                                        var thirdSplit = firstSplit[2].Split('=');
+                                                                                        MemoToId = thirdSplit[1];
+                                                                                    }
+                                                                                    var id = secondSplit[1];
+                                                                                    urlParts[0] = "Home";
+                                                                                    urlParts[1] = "MemoContent";
+                                                                                    url = urlParts[1] + "_" + id + "_" + MemoToId;
+
+                                                                                }
+
+                                                                                else
+                                                                                {
+                                                                                    url = string.Format(urlParts[2].StartsWith("?")
+                                                                                    ? "{0}{1}"
+                                                                                    : "{0}/{1}", Url.Action(urlParts[1], urlParts[0]), urlParts[2]);
+                                                                                }
+
+                                                                            }
+                                                                            else if (urlParts.Count == 2)
+                                                                            {
+                                                                                url = string.Format("{0}", Url.Action(urlParts[1], urlParts[0]));
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                url = string.Format("{0}", Url.Action("Index", urlParts[0]));
+                                                                            }
+                                                                        }
+                                                                        //N
+                                                                        <li class="item-default clearfix">
+
+                                                                            @if (!string.IsNullOrEmpty(url))
+                                                                            {
+
+                                                                                <label class="inline">
+                                                                                    @*<input type="checkbox" class="ace" disabled="disabled" />*@
+                                                                                    <span class="lbl">
+
+                                                                                        @if (url.Contains("MemoContent") && MemoToId != "")
+                                                                                        {
+                                                                                            <a href="#" class=" blue" onclick='getMemo("@url")'>
+                                                                                                @Html.Raw(task.NameAr)
+                                                                                                @Html.Raw(string.Format("&nbsp;&nbsp; - &nbsp;&nbsp;{0}", task.DateCreated))
+
+                                                                                            </a>
+                                                                                        }
+                                                                                        else if (url.Contains("MemoContent") && MemoToId == "")
+                                                                                        {
+                                                                                            <a href="#" class="" style="color:gray">
+                                                                                                @Html.Raw(task.NameAr)
+                                                                                                @Html.Raw(string.Format("&nbsp;&nbsp; - &nbsp;&nbsp;{0}", task.DateCreated))
+                                                                                            </a>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <a href="@Html.Raw(url)" class=" blue">
+                                                                                                @Html.Raw(task.NameAr)
+                                                                                                @Html.Raw(string.Format("&nbsp;&nbsp; - &nbsp;&nbsp;{0}", task.DateCreated))
+
+                                                                                            </a>
+                                                                                        }
+
+
+
+                                                                                    </span>
+                                                                                </label>
+                                                                                <div class="pull-left action-buttons">
+                                                                                    <a href="@Html.Raw(url)" class="blue tooltip-info" data-rel="tooltip" data-placement="right" title="الرابط">
+                                                                                        <i class="ace-icon fa fa-link bigger-130"></i>
+                                                                                    </a>
+                                                                                </div>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <label class="inline">
+                                                                                    @*<input type="checkbox" class="ace" disabled="disabled" />*@
+                                                                                    <span class="lbl">
+                                                                                        @Html.Raw(task.NameAr)
+
+                                                                                        @Html.Raw(string.Format("&nbsp;&nbsp; - &nbsp;&nbsp;{0}", task.DateCreated))
+                                                                                    </span>
+                                                                                </label>
+                                                                            }
+
+
+                                                                            @*N*@
+
+                                                                            @if (task.TaskId != null)
+                                                                            {
+                                                                                <div class="pull-left action-buttons">
+
+                                                                                    <a href="#" class="red tooltip-error taskChat" data-taskid="@(task.TaskId)" data-rel="tooltip" data-placement="right" title="المحادثات">
+                                                                                        <i class="ace-icon glyphicon glyphicon-comment bigger-130"></i>
+                                                                                    </a>
+
+                                                                                    <a href="#" class="blue tooltip-info subTask" data-taskid="@(task.TaskId)" data-rel="tooltip" data-placement="right" title="الالفرعية">
+                                                                                        <i class="ace-icon glyphicon glyphicon-list bigger-130"></i>
+                                                                                    </a>
+
+                                                                                    <a href="#" class="orange tooltip-warning details" data-taskid="@(task.TaskId)" data-rel="tooltip" data-placement="right" title="التفاصيل">
+                                                                                        <i class="ace-icon glyphicon glyphicon-info-sign bigger-130"></i>
+                                                                                    </a>
+
+                                                                                    <a href="#" class="dark taskAttach" data-taskid="@(task.TaskId)" data-rel="tooltip" data-placement="right" title="المرفقات">
+                                                                                        <i class="ace-icon glyphicon glyphicon-paperclip bigger-130"></i>
+                                                                                    </a>
+                                                                                </div>
+                                                                            }
+                                                                        </li>
+                                                                    }
+                                                                }
+
+                                                            </ul>
+
+                                                            <a href="#" id="notifications-load-more">Load more</a>
+                                                        </div>
+                                                        <div id="WK-notifications-tab" class="tab-pane ">
+                                                            <ul id="WK-notifications" class="item-list notification ">
+                                                                @{
+                                                                    foreach (var taskWk in notificationsWK)
+                                                                    {
+                                                                        var url = "";
+                                                                        var MemoToId = "";
+                                                                        if (!string.IsNullOrEmpty(taskWk.Url))
+                                                                        {
+                                                                            var urlParts = taskWk.Url.Replace("/", "\\").Split('\\').Where(x => !string.IsNullOrEmpty(x)).ToList();
+
+                                                                            if (urlParts.Count == 3)
+                                                                            {
+                                                                                if (urlParts[2].Contains("memoIn"))
+                                                                                {
+                                                                                    var firstSplit = urlParts[2].Split('&');
+                                                                                    var secondSplit = firstSplit[1].Split('=');
+                                                                                    if (firstSplit.Length > 2)
+                                                                                    {
+                                                                                        var thirdSplit = firstSplit[2].Split('=');
+                                                                                        MemoToId = thirdSplit[1];
+                                                                                    }
+                                                                                    var id = secondSplit[1];
+                                                                                    urlParts[0] = "Home";
+                                                                                    urlParts[1] = "MemoContent";
+                                                                                    url = urlParts[1] + "_" + id + "_" + MemoToId;
+
+                                                                                }
+                                                                                else if (urlParts[2].Contains("memoOut"))
+                                                                                {
+                                                                                    var firstSplit = urlParts[2].Split('&');
+                                                                                    var secondSplit = firstSplit[1].Split('=');
+                                                                                    if (firstSplit.Length > 2)
+                                                                                    {
+                                                                                        var thirdSplit = firstSplit[2].Split('=');
+                                                                                        MemoToId = thirdSplit[1];
+                                                                                    }
+                                                                                    var id = secondSplit[1];
+                                                                                    urlParts[0] = "Home";
+                                                                                    urlParts[1] = "MemoContent";
+                                                                                    url = urlParts[1] + "_" + id + "_" + MemoToId;
+
+                                                                                }
+
+                                                                                else
+                                                                                {
+                                                                                    url = string.Format(urlParts[2].StartsWith("?")
+                                                                                    ? "{0}{1}"
+                                                                                    : "{0}/{1}", Url.Action(urlParts[1], urlParts[0]), urlParts[2]);
+                                                                                }
+
+                                                                            }
+                                                                            else if (urlParts.Count == 2)
+                                                                            {
+                                                                                url = string.Format("{0}", Url.Action(urlParts[1], urlParts[0]));
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                url = string.Format("{0}", Url.Action("Index", urlParts[0]));
+                                                                            }
+                                                                        }
+                                                                        //N
+                                                                        <li class="item-default clearfix">
+
+                                                                            @if (!string.IsNullOrEmpty(url))
+                                                                            {
+
+                                                                                <label class="inline">
+                                                                                    @*<input type="checkbox" class="ace" disabled="disabled" />*@
+                                                                                    <span class="lbl">
+
+                                                                                        @if (url.Contains("MemoContent") && MemoToId != "")
+                                                                                        {
+                                                                                            <a href="#" class=" blue" onclick='getMemo("@url")'>
+                                                                                                @Html.Raw(taskWk.NameAr)
+                                                                                                @Html.Raw(string.Format("&nbsp;&nbsp; - &nbsp;&nbsp;{0}", taskWk.DateCreated))
+
+                                                                                            </a>
+                                                                                        }
+                                                                                        else if (url.Contains("MemoContent") && MemoToId == "")
+                                                                                        {
+                                                                                            <a href="#" class="" style="color:gray">
+                                                                                                @Html.Raw(taskWk.NameAr)
+                                                                                                @Html.Raw(string.Format("&nbsp;&nbsp; - &nbsp;&nbsp;{0}", taskWk.DateCreated))
+                                                                                            </a>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <a href="@Html.Raw(url)" class=" blue">
+                                                                                                @Html.Raw(taskWk.NameAr)
+                                                                                                @Html.Raw(string.Format("&nbsp;&nbsp; - &nbsp;&nbsp;{0}", taskWk.DateCreated))
+
+                                                                                            </a>
+                                                                                        }
+
+
+
+                                                                                    </span>
+                                                                                </label>
+                                                                                <div class="pull-left action-buttons">
+                                                                                    <a href="@Html.Raw(url)" class="blue tooltip-info" data-rel="tooltip" data-placement="right" title="الرابط">
+                                                                                        <i class="ace-icon fa fa-link bigger-130"></i>
+                                                                                    </a>
+                                                                                </div>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <label class="inline">
+                                                                                    @*<input type="checkbox" class="ace" disabled="disabled" />*@
+                                                                                    <span class="lbl">
+                                                                                        @Html.Raw(taskWk.NameAr)
+
+                                                                                        @Html.Raw(string.Format("&nbsp;&nbsp; - &nbsp;&nbsp;{0}", taskWk.DateCreated))
+                                                                                    </span>
+                                                                                </label>
+                                                                            }
+
+
+                                                                            @*N*@
+
+                                                                            @if (taskWk.TaskId != null)
+                                                                            {
+                                                                                <div class="pull-left action-buttons">
+
+                                                                                    <a href="#" class="red tooltip-error taskChat" data-taskid="@(taskWk.TaskId)" data-rel="tooltip" data-placement="right" title="المحادثات">
+                                                                                        <i class="ace-icon glyphicon glyphicon-comment bigger-130"></i>
+                                                                                    </a>
+
+                                                                                    <a href="#" class="blue tooltip-info subTask" data-taskid="@(taskWk.TaskId)" data-rel="tooltip" data-placement="right" title="الالفرعية">
+                                                                                        <i class="ace-icon glyphicon glyphicon-list bigger-130"></i>
+                                                                                    </a>
+
+                                                                                    <a href="#" class="orange tooltip-warning details" data-taskid="@(taskWk.TaskId)" data-rel="tooltip" data-placement="right" title="التفاصيل">
+                                                                                        <i class="ace-icon glyphicon glyphicon-info-sign bigger-130"></i>
+                                                                                    </a>
+
+                                                                                    <a href="#" class="dark taskAttach" data-taskid="@(taskWk.TaskId)" data-rel="tooltip" data-placement="right" title="المرفقات">
+                                                                                        <i class="ace-icon glyphicon glyphicon-paperclip bigger-130"></i>
+                                                                                    </a>
+                                                                                </div>
+                                                                            }
+                                                                        </li>
+                                                                    }
+                                                                }
+
+                                                            </ul>
+
+                                                            <a href="#" id="notifications-load-more">Load more</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+}
+
+
+<div class="k-rtl">
+    @(
+         Html.Kendo().Window().Name("subTasksWindow")
+           .Width(700)
+           .Height(600)
+           .Title("المهام الفرعية")
+           .Visible(false)
+           .Scrollable(false)
+           .Modal(true)
+           .Draggable()
+           .Resizable()
+           .Events(e => e.Resize("onSubTasksWindowResize").Activate("onSubTasksWindowActivate"))
+           .Content(
+                    Html.Kendo().Splitter().Name("vSplitter")
+                        .HtmlAttributes(new { @style = "height: 99.5%" })
+                        .Orientation(SplitterOrientation.Vertical)
+                        .Panes(p =>
+                        {
+                            p.Add()
+                                     .Scrollable(false)
+                                     .Collapsible(false)
+                                     .HtmlAttributes(new { id = "subTasksPane" })
+                                     .Content(@<div class="k-rtl" style="height: 100%">
+                                        @(Html.Kendo().Grid<SubTasksErpModel>().Name("subTasksGrid")
+                                                                //.Events()
+                                                                .Columns(x =>
+                                                                {
+                                                                           x.Bound(c => c.Id).Width(150);
+                                                                           x.Bound(c => c.SubTaskDesc).Width(150);
+                                                                           x.Bound(c => c.StaffNotes).Width(150);
+                                                                           x.Bound(c => c.ManagerNotes).Width(150);
+                                                                           x.Bound(c => c.TaskId).Hidden(true);
+                                                                           x.Command(com =>
+                                                                           {
+                                                                               com.Edit().Text("تحرير").UpdateText("حفظ").CancelText("الغاء");
+                                                                               com.Custom("Delete").Text("حذف").Click("onDelete");
+                                                                           }).Title("اوامر").Width(200).HtmlAttributes(new { @class = "commandsCol" });
+                                                                       })
+                                                                .ToolBar(t => t.Create().Text("أضف سطر"))
+                                                                .Editable(ed => ed.Mode(GridEditMode.InLine))
+                                                                .Scrollable(s => s.Height("auto"))
+                                                                .Navigatable()
+                                                                .Groupable()
+                                                                .Resizable(resize => resize.Columns(true))
+                                                                .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                                                .Pageable(pageable => pageable.Refresh(true)
+                                                                                              .PageSizes(true)
+                                                                                              .ButtonCount(5))
+                                                                .Sortable(sortable => sortable.AllowUnsort(true).SortMode(GridSortMode.MultipleColumn))
+                                                                .Reorderable(reorder => reorder.Columns(true))
+                                                                .Filterable(ftb => ftb.Mode(GridFilterMode.Row))
+                                                                .AutoBind(false)
+                                                                .DataSource(ds => ds.Ajax().Model(m =>
+                                                                {
+                                                                           m.Id(x => x.Id);
+                                                                           m.Field(x => x.Id).Editable(false);
+                                                                       })
+                                                                                    .Create(x => x.Action("Create", "SubTasksErp").Data("onGetSubTasksData"))
+                                                                                    .Update(x => x.Action("Update", "SubTasksErp").Data("onGetSubTasksData"))
+                                                                                    .Destroy(x => x.Action("Destroy", "SubTasksErp"))
+                                                                                    .Read(x => x.Action("Read", "SubTasksErp").Data("onGetSubTasksData"))
+                                                                ))
+                                    </div>);
+
+                                   p.Add().Size("35px")
+                                                    .Resizable(false)
+                                                    .Collapsible(false)
+                                                    .Content(@<div class="pane-content">
+                                                        <button class="k-button pull-right" id="subTaskWindowCloseButton">
+                                                            <span class="k-icon k-i-close"></span>
+                                                            إغلاق
+                                                        </button>
+                                                    </div>);
+                                       }).ToHtmlString())
+    )
+</div>
+
+<div class="k-rtl">
+    @(
+         Html.Kendo().Window().Name("taskAttachWindow")
+           .Width(800)
+           .Height(600)
+           .Title("المرفقات")
+           .Visible(false)
+           .Scrollable(false)
+           .Modal(true)
+           .Draggable()
+           .Resizable()
+           .Events(e => e.Resize("onTaskAttachWindowResize").Activate("onTaskAttachWindowActivate"))
+           .Content(
+                    Html.Kendo().Splitter().Name("vAttachSplitter")
+                        .HtmlAttributes(new { @style = "height: 99.5%" })
+                        .Orientation(SplitterOrientation.Vertical)
+                        .Panes(p =>
+                        {
+                            p.Add()
+                                     .Scrollable(false)
+                                     .Collapsible(false)
+                                     .HtmlAttributes(new { id = "taskAttachPane" })
+                                     .Content(@<div class="k-rtl" style="height: 100%">
+                                        @(Html.Kendo().Grid<TaskAttachmentModel>()
+                                                                .Name("TasksAttachmentGrid")
+                                                                .Events(e => e.Edit("onTrainingEdit"))
+                                                                .Columns(columns =>
+                                                                {
+                                                                           columns.Bound(c => c.TaskAttachmentID).Width(150);
+                                                                           columns.Bound(c => c.TASK_ID).Hidden(true);
+                                                                           columns.Bound(c => c.TITLE_AR).Width(150);
+                                                               //columns.Bound(c => c.TITLE_EN).Width(150);
+                                                               columns.Bound(c => c.FILE_NAME).Width(150);
+                                                               //  columns.Bound(c => c.LOB_FILE).ClientTemplate("<a href='/StrategyMainSub/TasksAttachmentFileDownload/#=TaskAttachmentID#'> تحميل </a>").Width(300);
+                                                               columns.Bound(c => c.LOB_FILE).ClientTemplate(
+                                                                                                                         string.Format("<a href='{0}?id=#= TaskAttachmentID #'> تنزيل </a>",
+                                                                                                                                       Url.Action("TasksAttachmentFileDownload", "StrategyMainSub"))
+                                                                               );
+
+                                                                           columns.Command(commands =>
+                                                                           {
+                                                                               commands.Edit().Text("تحرير").UpdateText("حفظ").CancelText("الغاء").HtmlAttributes(new { @class = "xxx" }); // The "edit" command will edit and update data items
+                                                                   commands.Custom("Delete").Text("حذف").Click("onDelete").HtmlAttributes(new { @class = "xxx" });
+
+                                                                           }).Title("اوامر").Width(200).HtmlAttributes(new { @class = "commandsCol  disableCss" });
+
+                                                               //columns.Command(b =>
+                                                               //{
+
+
+                                                               //}).Hidden(true).HtmlAttributes(new { @class = "commandsCol" });
+                                                           })
+                                                                .ToolBar(toolbar =>
+                                                                {
+                                                                           toolbar.Create().Text("أضف سطر").HtmlAttributes(new { @class = "xxx" });
+                                                               // toolbar.Excel();
+                                                               //toolbar.Pdf();
+
+                                                           })
+                                                                .Editable(editable => editable.Mode(GridEditMode.InLine)) // Use inline editing mode
+                                                                                                                          // .Scrollable(s => s.Height("auto"))
+
+                                                                .Scrollable()
+                                                                .Navigatable()
+                                                                //  .ClientDetailTemplateId("template1")
+                                                                .Groupable()
+                                                                .Excel(x => x.FileName("projectPhases.xlsx").Filterable(true).ProxyURL(Url.Action("Excel_Export_Save", "StrategyMainSub")))
+
+
+                                                                .Resizable(resize => resize.Columns(true))
+                                                                .Selectable(selectable => selectable
+                                                                                              .Mode(GridSelectionMode.Single))
+                                                                .Pageable(x => x.Refresh(true).PageSizes(true).ButtonCount(5).PageSizes(new List<int> { 5, 10, 20, 50, 100 }))
+                                                                .Sortable(sortable => sortable
+                                                                                          .AllowUnsort(true)
+                                                                                          .SortMode(GridSortMode.MultipleColumn))
+                                                                .Reorderable(reorder => reorder.Columns(true))
+                                                                .Filterable(ftb => ftb.Mode(GridFilterMode.Row))
+                                                                .AutoBind(false)
+                                                                .DataSource(dataSource => dataSource
+                                                                                              .Ajax()
+                                                                                              .Model(model =>
+                                                                                              {
+                                                                                                         model.Id(x => x.TaskAttachmentID);
+                                                                                                         model.Field(x => x.TaskAttachmentID).Editable(false);
+                                                                                                         model.Field(f => f.TASK_ID).Editable(false);
+                                                                                                         model.Field(f => f.FILE_NAME).Editable(false);
+
+                                                                                                     })
+
+                                                                                              .Create(create => create.Action("createTasksAttachment", "StrategyMainSub").Data("getTasksData")) // Action invoked when the user saves a new data item
+                                                                                              .Update(update => update.Action("updateTasksAttachment", "StrategyMainSub").Data("getTasksData")) // Action invoked when the user saves an updated data item
+                                                                                              .Destroy(destroy => destroy.Action("destroyTasksAttachment", "StrategyMainSub")) // Action invoked when the user removes a data item
+                                                                                              .Read(read => read.Action("ReadTasksAttachment", "StrategyMainSub").Data("getTasksData"))
+                                                                )
+                                        )
+                                    </div>);
+
+                                   p.Add().Size("35px")
+                                                    .Resizable(false)
+                                                    .Collapsible(false)
+                                                    .Content(@<div class="pane-content">
+                                                        <button class="k-button pull-right" id="taskAttachWindowCloseButton">
+                                                            <span class="k-icon k-i-close"></span>
+                                                            إغلاق
+                                                        </button>
+                                                    </div>);
+                                       }).ToHtmlString())
+    )
+</div>
+
+@*<style>
+        #TasksAttachmentGrid {
+            height: 800px !important;
+        }
+
+        .k-grid-content {
+            height: 616px !important;
+        }
+    </style>*@
+
+<div id="modal-task-search" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header no-padding">
+                <div class="table-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        <span class="white">&times;</span>
+                    </button>
+                    &nbsp;&nbsp;&nbsp;بحث
+                </div>
+            </div>
+
+            <div class="modal-body no-padding">
+                <div class="form-horizontal">
+                    <div class="form-group" style="margin-top: 10px">
+                        <label class="col-sm-3 control-label no-padding-left">نوع المهمة</label>
+
+                        <div class="col-sm-9">
+                            <div class="k-rtl">
+                                @(Html.Kendo().ComboBox()
+                                              .Name("searchTaskTypeCombo")
+                                              .HtmlAttributes(new { data_value_primitive = "true", style = "width: 90%;" })
+                                              .Placeholder("إختر")
+                                              .Filter(FilterType.Contains)
+                                              .MinLength(1)
+                                              .DataSource(source =>
+                                              {
+                                                  source.Custom()
+                                                      .ServerFiltering(true)
+                                                      .Type("aspnetmvc-ajax")
+                                                      .Transport(transport =>
+                                                      {
+                                                          transport.Read("ReadTaskTypes", "Home");
+                                                      })
+                                                      .Schema(schema =>
+                                                      {
+                                                          schema.Data("Data")
+                                                              .Total("Total");
+                                                      });
+                                              }).DataTextField("NameAr")
+                                              .DataValueField("Id")
+                                )
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left">تاريخ الإستلام</label>
+
+                        <div class="col-sm-9">
+                            <div class="k-rtl form-inline">
+                                <label>من: </label>
+
+                                @(Html.Kendo().DatePicker()
+                                              .Name("searchRecievedStartDate")
+                                              .Events(e => e.Change("searchRecievedStartDateChange"))
+                                )
+
+                                <label>إلى: </label>
+
+                                @(Html.Kendo().DatePicker()
+                                              .Name("searchRecievedEndDate")
+                                              .Events(e => e.Change("searchRecievedEndDateChange"))
+                                )
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left">التاريخ المخطط</label>
+
+                        <div class="col-sm-9">
+                            <div class="k-rtl form-inline">
+                                <label>من: </label>
+
+                                @(Html.Kendo().DatePicker()
+                                              .Name("searchPlannedStartDate")
+                                              .Events(e => e.Change("searchPlannedStartDateChange"))
+                                )
+
+                                <label>إلى: </label>
+
+                                @(Html.Kendo().DatePicker()
+                                              .Name("searchPlannedEndDate")
+                                              .Events(e => e.Change("searchPlannedEndDateChange"))
+                                )
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="col-sm-2 control-label no-padding-left"></label>
+                        <div class="col-sm-9">
+                            <div class="k-rtl form-inline">
+                                <label>عنوان المهمة: </label>
+
+                                @(Html.Kendo().TextBox()
+                                              .Name("TaskTitle").HtmlAttributes(new { @style = "width:351px" })
+
+                                )
+
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label no-padding-left"></label>
+                        <div class="col-sm-9">
+                            <div class="k-rtl form-inline">
+                                <label>من الموظف : </label>
+                                <select class="form-control" id="FromStaff" multiple="multiple" data-placeholder="اختر ..." style="width: 351px">
+                                    @foreach (var x in Model.staff)
+                                    {
+                                        <option value="@x.ID">@x.NAME_AR</option>
+                                    }
+                                </select>
+
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer no-margin-top">
+                <button class="btn btn-sm btn-danger pull-left" data-dismiss="modal">
+                    <i class="ace-icon fa fa-times"></i>
+                    إغلاق
+                </button>
+
+                <button class="btn btn-sm btn-primary pull-right" id="searchTasksBtn">
+                    <i class="ace-icon fa fa-search"></i>
+                    بحث
+                </button>
+
+                <button class="btn btn-sm btn-default pull-right" id="clearSearchTasksBtn">
+                    <i class="ace-icon fa fa-undo"></i>
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-task-search-send" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header no-padding">
+                <div class="table-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        <span class="white">&times;</span>
+                    </button>
+                    &nbsp;&nbsp;&nbsp;بحث
+                </div>
+            </div>
+
+            <div class="modal-body no-padding">
+                <div class="form-horizontal">
+                    <div class="form-group" style="margin-top: 10px">
+                        <label class="col-sm-3 control-label no-padding-left">نوع المهمة</label>
+
+                        <div class="col-sm-9">
+                            <div class="k-rtl">
+                                @(Html.Kendo().ComboBox()
+                                              .Name("searchTaskTypeComboSend")
+                                              .HtmlAttributes(new { data_value_primitive = "true", style = "width: 90%;" })
+                                              .Placeholder("إختر")
+                                              .Filter(FilterType.Contains)
+                                              .MinLength(1)
+                                              .DataSource(source =>
+                                              {
+                                                  source.Custom()
+                                                        .ServerFiltering(true)
+                                                        .Type("aspnetmvc-ajax")
+                                                        .Transport(transport =>
+                                                        {
+                                                            transport.Read("ReadTaskTypes", "Home");
+                                                        })
+                                                        .Schema(schema =>
+                                                        {
+                                                            schema.Data("Data")
+                                                                  .Total("Total");
+                                                        });
+                                              }).DataTextField("NameAr")
+                                              .DataValueField("Id")
+                                )
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left">تاريخ الإستلام</label>
+
+                        <div class="col-sm-9">
+                            <div class="k-rtl form-inline">
+                                <label>من: </label>
+
+                                @(Html.Kendo().DatePicker()
+                                              .Name("searchRecievedStartDateSend")
+                                              .Events(e => e.Change("searchRecievedStartDateChangeSend"))
+                                )
+
+                                <label>إلى: </label>
+
+                                @(Html.Kendo().DatePicker()
+                                              .Name("searchRecievedEndDateSend")
+                                              .Events(e => e.Change("searchRecievedEndDateChangeSend"))
+                                )
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left">التاريخ المخطط</label>
+
+                        <div class="col-sm-9">
+                            <div class="k-rtl form-inline">
+                                <label>من: </label>
+
+                                @(Html.Kendo().DatePicker()
+                                              .Name("searchPlannedStartDateSend")
+                                              .Events(e => e.Change("searchPlannedStartDateChangeSend"))
+                                )
+
+                                <label>إلى: </label>
+
+                                @(Html.Kendo().DatePicker()
+                                              .Name("searchPlannedEndDateSend")
+                                              .Events(e => e.Change("searchPlannedEndDateChangeSend"))
+                                )
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="col-sm-2 control-label no-padding-left"></label>
+                        <div class="col-sm-9">
+                            <div class="k-rtl form-inline">
+                                <label>عنوان المهمة: </label>
+
+                                @(Html.Kendo().TextBox()
+                                              .Name("TaskTitleSend").HtmlAttributes(new { @style = "width:351px" })
+
+                                )
+
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label no-padding-left"></label>
+                        <div class="col-sm-9">
+                            <div class="k-rtl form-inline">
+                                <label>الموظف المكلف : </label>
+                                <select class="form-control" id="FromStaffSend" multiple="multiple" data-placeholder="اختر ..." style="width:351px">
+                                    @foreach (var x in Model.staff)
+                                    {
+                                        <option value="@x.ID">@x.NAME_AR</option>
+                                    }
+                                </select>
+
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer no-margin-top">
+                <button class="btn btn-sm btn-danger pull-left" data-dismiss="modal">
+                    <i class="ace-icon fa fa-times"></i>
+                    إغلاق
+                </button>
+
+                <button class="btn btn-sm btn-primary pull-right" id="searchTasksBtnSend">
+                    <i class="ace-icon fa fa-search"></i>
+                    بحث
+                </button>
+
+                <button class="btn btn-sm btn-default pull-right" id="clearSearchTasksBtnSend">
+                    <i class="ace-icon fa fa-undo"></i>
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-task-details" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header no-padding">
+                <div class="table-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        <span class="white">&times;</span>
+                    </button>
+                    &nbsp;&nbsp;&nbsp;تفاصيل المهمة
+                </div>
+            </div>
+
+            <div class="modal-body no-padding">
+                <div class="form-horizontal row">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskNameAr">العنوان</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskNameAr" id="taskNameAr" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskNameEn">العنوان إنجليزي</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskNameEn" id="taskNameEn" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskDescription">الوصف</label>
+
+                        <div class="col-sm-9">
+                            <textarea id="taskDescription" class="autosize-transition col-xs-11 limited"></textarea>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskDescription">ملاحظات الموظف المرسلة اليه</label>
+
+                        <div class="col-sm-9">
+                            <textarea id="taskNote" class="autosize-transition col-xs-11 limited"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskTypeNameAr">نوع المهمة</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskTypeNameAr" id="taskTypeNameAr" />
+                        </div>
+                    </div>
+
+                    <div class="form-group hide memo">
+                        <label class="col-sm-3 control-label no-padding-left" for="memoType">نوع المذكرة</label>
+
+                        <div class="col-sm-3">
+                            <input type="text" class="col-xs-11" name="memoType" id="memoType" readonly="" />
+                        </div>
+
+                        <div class="col-sm-3">
+                            <a href="#" class="orange tooltip-warning " data-taskid="1920" id="memoType1"
+                               data-rel="tooltip" data-placement="right" title="" data-original-title="التفاصيل">
+                                <i class="ace-icon glyphicon glyphicon-info-sign bigger-130"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskDateCreated">تاريخ الإدخال</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskDateCreated" id="taskDateCreated" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskFromStaff">من</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskFromStaff" id="taskFromStaff" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskCompleted">تم؟</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskCompleted" id="taskCompleted" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskDateCompleted">تاريخ الإتمام</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskDateCompleted" id="taskDateCompleted" />
+                        </div>
+                    </div>
+
+                    @*<div class="form-group">
+                            <label class="col-sm-3 control-label no-padding-left" for="taskDismissed">Dismissed؟</label>
+
+                            <div class="col-sm-9">
+                                <input type="text" class="col-xs-11" name="taskDismissed" id="taskDismissed" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label no-padding-left" for="taskDateDismissed">تاريخ Dismissed</label>
+
+                            <div class="col-sm-9">
+                                <input type="text" class="col-xs-11" name="taskDateDismissed" id="taskDateDismissed" />
+                            </div>
+                        </div>*@
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskPlannedStartDate">تاريخ بدء المهمة المخطط</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskPlannedStartDate" id="taskPlannedStartDate" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskPlannedEndDate">تاريخ انتهاء المهمة المخطط</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskPlannedEndDate" id="taskPlannedEndDate" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskActualStartDate">تاريخ بدء المهمة الفعلي</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskActualStartDate" id="taskActualStartDate" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskActualEndDate">تاريخ انتهاء المهمة الفعلي</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskActualEndDate" id="taskActualEndDate" />
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+
+            <div class="modal-footer no-margin-top">
+                <button class="btn btn-sm btn-danger pull-left closeMemo" data-dismiss="modal">
+                    <i class="ace-icon fa fa-times"></i>
+                    إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-task-details-send" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header no-padding">
+                <div class="table-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        <span class="white">&times;</span>
+                    </button>
+                    &nbsp;&nbsp;&nbsp;تفاصيل المهمة
+                </div>
+            </div>
+
+            <div class="modal-body no-padding">
+                <div class="form-horizontal row">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskNameArS">العنوان</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskNameArS" id="taskNameArS" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskNameEnS">العنوان إنجليزي</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskNameEnS" id="taskNameEnS" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskDescriptionS">الوصف</label>
+
+                        <div class="col-sm-9">
+                            <textarea id="taskDescriptionS" class="autosize-transition col-xs-11 limited"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskTypeNameArS">نوع المهمة</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskTypeNameArS" id="taskTypeNameArS" />
+                        </div>
+                    </div>
+
+                    <div class="form-group hide memo">
+                        <label class="col-sm-3 control-label no-padding-left" for="memoTypeS">نوع المذكرة</label>
+
+                        <div class="col-sm-3">
+                            <input type="text" class="col-xs-11" name="memoTypeS" id="memoTypeS" readonly="" />
+                        </div>
+
+                        <div class="col-sm-3">
+                            <a href="#" class="orange tooltip-warning " data-taskid="1920" id="memoType1S"
+                               data-rel="tooltip" data-placement="right" title="" data-original-title="التفاصيل">
+                                <i class="ace-icon glyphicon glyphicon-info-sign bigger-130"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskDateCreatedS">تاريخ الإدخال</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskDateCreatedS" id="taskDateCreatedS" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskFromStaffS">من</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskFromStaffS" id="taskFromStaffS" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskCompletedS">تم؟</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskCompletedS" id="taskCompletedS" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskDateCompletedS">تاريخ الإتمام</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskDateCompletedS" id="taskDateCompletedS" />
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskPlannedStartDateS">تاريخ بدء المهمة المخطط</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskPlannedStartDateS" id="taskPlannedStartDateS" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskPlannedEndDateS">تاريخ انتهاء المهمة المخطط</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskPlannedEndDateS" id="taskPlannedEndDateS" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskActualStartDateS">تاريخ بدء المهمة الفعلي</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskActualStartDateS" id="taskActualStartDateS" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="taskActualEndDateS">تاريخ انتهاء المهمة الفعلي</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="taskActualEndDateS" id="taskActualEndDateS" />
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+
+            <div class="modal-footer no-margin-top">
+                <button class="btn btn-sm btn-danger pull-left closeMemo" data-dismiss="modal">
+                    <i class="ace-icon fa fa-times"></i>
+                    إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="modal-taskMemo-details" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header no-padding">
+                <div class="table-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        <span class="white">&times;</span>
+                    </button>
+                    &nbsp;&nbsp;&nbsp;تفاصيل المذكرة
+                </div>
+            </div>
+
+            <div class="modal-body no-padding">
+                <div class="form-horizontal row">
+                    <div id="modal-taskMemo-detailsBody" class="col-sm-12">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer no-margin-top">
+                <button class="btn btn-sm btn-danger pull-left" data-dismiss="modal">
+                    <i class="ace-icon fa fa-times"></i>
+                    إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*// n*@
+<div id="modal-Advance-Serch" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header no-padding">
+                <div class="table-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        <span class="white">&times;</span>
+                    </button>
+                    &nbsp;&nbsp;&nbsp;بحث متقدم
+                </div>
+            </div>
+
+            <div class="modal-body no-padding">
+                <div class="form-horizontal row">
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="Sender">المرسل  </label>
+
+                        <div class="col-sm-9">
+                            <input class="req col-xs-11 " type="text" id="SenderName" name="SearchKeyList" placeholder="المرسل ..." />
+                        </div>
+                    </div>
+
+                    @*<div class="form-group">
+                            <label class="col-sm-3 control-label no-padding-left" for="Sender">المرسل </label>
+
+                            <div class="col-sm-9">
+                                <input type="text" class="col-xs-11" name="SenderName" id="SenderName" />
+                            </div>
+                        </div>*@
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="Subject">الموضوع</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="SubjectName" id="SubjectName" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="Body">يحتوي على </label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="col-xs-11" name="BodyName" id="BodyName" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="MemoFromDate"> من تاريخ </label>
+                        <div class="col-sm-9">
+                            @*<input class="col-xs-11  date-picker" id="MemoFromDate" type="text" data-date-format="dd-mm-yyyy" />*@
+                            <input type="date" class="col-xs-11 req datepicker " name="MemoFromDate" id="MemoFromDate" />
+
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-left" for="MemoToDate"> الى تاريخ </label>
+                        <div class="col-sm-9">
+                            <input type="date" class="col-xs-11 req datepicker " name="MemoToDate" id="MemoToDate" />
+                        </div>
+                    </div>
+
+
+
+
+
+
+                </div>
+            </div>
+
+            <div class="modal-footer no-margin-top">
+                <button class="btn btn-sm btn-danger pull-left advanceSearch" id="advanceSearch" data-dismiss="modal">
+                    <i class="ace-icon fa fa-search-plus"></i>
+                    بحث
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-NoteTask" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header no-padding">
+                <div class="table-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        <span class="white">&times;</span>
+                    </button>
+                    &nbsp;&nbsp;&nbsp;إضافة ملاحظة
+                </div>
+            </div>
+
+            <div class="modal-body no-padding">
+                <div class="form-horizontal row">
+                    <div class="col-sm-12">
+                        <label class="col-sm-3">الملاحظة</label>
+                        <div class="col-sm-9">
+                            <textarea style="width: 100%; height: 100%; max-height: 100%; min-height: 200px;" id="noteTask" name="NOTES"></textarea>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer no-margin-top">
+                <button type="button" class="btn btn-default" id="notesTaskCloseButton" data-dismiss="modal">إغلاق</button>
+                <button type="button" class="btn btn-primary" id="notesTaskSaveButton">حفظ</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+
+    function AutoSave() {
+
+    }
+
+    $(document).ready(function () {
+        //////////////////
+
+
+        multiselect = $("#FromStaff").kendoMultiSelect({
+            autoClose: true,
+        }).data("kendoMultiSelect");
+
+        multiselectSend = $("#FromStaffSend").kendoMultiSelect({
+            autoClose: true,
+        }).data("kendoMultiSelect");
+
+        var timeoutId;
+        if (timeoutId) clearTimeout(timeoutId);
+        $('#memoMsg').on('input propertychange change', function (e) {
+            var obj = $(this);
+            var strlength = obj.html();
+            if (parseFloat(strlength.length) % 100 == 0 && parseFloat(strlength.length) >= 100) {
+
+
+                var sendMemoUrl = '@Url.Action("AutoSaveMemo", "MemoErp")',
+                    memoTo = $('#memoToMs').data('kendoMultiSelect'),
+                    MemoidDraftAutoSave = $("#MemoidDraftAutoSave").val(),
+                    msg = $('#memoMsg').html(),
+                    subject = $('#form-field-subject').val(),
+                    memoType = $('#memoTypeDdown').data('kendoDropDownList'),
+                    belongTo = $('#memoHiddenBelongTo').val(),
+                    memoHiddenMemoTo = $('#memoHiddenMemoTo').val(),
+                    memoHiddenMemoSource = $('#memoHiddenMemoSource').val(),
+                    memoHiddenMemoId = $('#memoHiddenMemoId').val(),
+                    search = $('#form-field-searchKey').val(),
+                    mType = memoType.value(),
+                    to = memoTo.value();
+
+                if (!to.length) {
+                    BT.showErrorNotice('يجب تحديد مستلم للمذكرة.');
+                    return;
+                }
+
+
+
+                if (BT.isNullOrEmpty(msg)) {
+                    BT.showErrorNotice('يجب ادخال نص المذكرة.');
+                    return;
+                }
+
+                if (BT.isNullOrEmpty(mType)) {
+                    BT.showErrorNotice('يجب تحديد نوع المذكرة.');
+                    return;
+                }
+
+                if (BT.isNullOrEmpty(subject)) {
+                    BT.showErrorNotice('يجب ادخال الموضوع للمذكرة.');
+                    return;
+                }
+                $('#id-message-form').ajaxForm({
+                    type: 'post',
+                    url: sendMemoUrl,
+                    data: {
+                        memoType: mType,
+                        MemoidDraftAutoSave: MemoidDraftAutoSave,
+                        subject: subject,
+                        body: msg,
+                        memoTo: memoTo.value(),
+                        belongTo: belongTo,
+                        memoToId: memoHiddenMemoTo,
+                        memoSource: memoHiddenMemoSource,
+                        serachKeys: search,
+                        isDraft: "Y",
+                        memoId: memoHiddenMemoId
+                    },
+                    success: (function (data) {
+                        if (!BT.isNullOrEmpty(data.ErrorMessage))
+                            BT.showErrorNotice(data.ErrorMessage)
+                        else {
+                            if (parseFloat(data) > 0) {
+                                {
+
+                                    $("#MemoidDraftAutoSave").val(data)
+                                }
+                                //loadInbox();
+                                //$('.btn-back-message-list').trigger('click');
+
+                                //BT.showSuccessNotice();
+                                //$('#myModal').modal('hide');
+
+                            }
+                        }
+                    })
+                }).submit();
+
+
+
+            }
+
+
+
+        });
+
+    });
+    function ResetFilters() {
+        $("#searchTaskTypeCombo").data("kendoComboBox").value("");
+        $("#searchRecievedStartDate").data("kendoDatePicker").value("");
+        $("#searchRecievedEndDate").data("kendoDatePicker").value("");
+
+        $("#searchPlannedStartDate").data("kendoDatePicker").value("");
+        $("#searchPlannedEndDate").data("kendoDatePicker").value("");
+
+        $("#TaskTitle").val("");
+        multiselect.value("")
+
+
+
+    }
+
+    function ResetFiltersSend() {
+        $("#searchTaskTypeComboSend").data("kendoComboBox").value("");
+        $("#searchRecievedStartDateSend").data("kendoDatePicker").value("");
+        $("#searchRecievedEndDateSend").data("kendoDatePicker").value("");
+
+        $("#searchPlannedStartDateSend").data("kendoDatePicker").value("");
+        $("#searchPlannedEndDateSend").data("kendoDatePicker").value("");
+
+        $("#TaskTitleSend").val("");
+        multiselectSend.value("")
+
+
+
+    }
+</script>
+
+
+
+
+
+
+
+
+<input type="hidden" id="hTaskId" />
+<script type="text/javascript" src="~/assets/js/jquery.dataTables.min.js"></script>
+<script src="~/assets/js/jquery.dataTables.bootstrap.js"></script>
+<script src="@Url.Content("~/Scripts/kendo/2015.3.1111/kendo.editor.min.js")"></script>
+@*<script src="~/assets/js/BTScript.js"></script>*@
+
+<script type="text/javascript" language="javascript">
+    jQuery(function ($) {
+        var lastMsgPage = 0;
+        function openWindowWithPost(url, data) {
+            var form = document.createElement("form");
+            form.target = "_blank";
+            form.method = "POST";
+            form.action = url;
+            form.style.display = "none";
+
+            for (var key in data) {
+                var input = document.createElement("input");
+                input.type = "hidden";
+                input.name = key;
+                input.value = data[key];
+                form.appendChild(input);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        }
+
+        $('#messages-tab-load-more').off('click').on('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            BT.Ajax.GET('@Url.Action("LoadMoreMsgs", "Home")',
+                { page: lastMsgPage },
+                function (d) {
+                    lastMsgPage = d.Page;
+
+                    var res = '';
+
+                    $.each(d.Tasks, function (i, v) {
+                        res += '<li class="item-default clearfix xTaskMsgs1" data-msgtoid="' + v.Id + ' "data-typename="' + v.MsgType + '" data-typeid="' + v.TypeId + '"">' +
+                            '<label class="inline">' +
+                            '<input type="checkbox" class="ace" disabled="disabled" />' +
+                            '<span class="lbl">  ' +
+                            v.StaffName + ': ' + v.Msg +
+                            '</span>' +
+                            ' <div class="pull-left action-buttons">' +
+                            '<a href="#" class="red detailsMsg1" data-taskid="' + v.TypeId + '" data-type="' + v.MsgType + '" data-rel="tooltip" data-placement="right" title="المحادثات">' +
+                            '<i class="ace-icon glyphicon glyphicon-comment bigger-130"></i>' +
+                            '</a></div>' +
+                            ' <div class="pull-left action-buttons">' +
+                            '<a href="#" class="blue details-msg" id="' + v.TypeId + '" data-taskid="' + v.TypeId + '" data-type="' + v.MsgType + '" data-rel="tooltip" data-placement="right" title="التفاصيل">' +
+                            '<i class="ace-icon glyphicon glyphicon-info-sign bigger-130"></i>' +
+                            '</a></div>' +
+                            '</label>' +
+                            '</li>';
+                    });
+
+                    $('#messages-tab-ul').append(res);
+
+                    //$('.xTaskMsgs').off('click').on('click', function () {
+                    $('.detailsMsg1').off('click').on('click', function () {
+                        BT.Chat.show($(this).data('type'), $(this).data('taskid'), '@Url.Action("GetMsgsById", "Home")', '@Url.Action("SendMsg", "Home")');
+                        // BT.Chat.show($(this).data('typename'), $(this).data('msgtoid'), '@Url.Action("GetMsgsById", "Home")', '@Url.Action("SendMsg", "Home")');
+                    });
+                    $('.details-msg').off('click').on('click', function () {
+                        var id = $(this).data('taskid');
+                        var type = $(this).data('type');
+                        if (type == "me") {
+                            var url = '@Url.Action("DisplayIncome", "Income2")';
+                            //url = url + "?id=" + id;
+                            //window.open(url, '_blank');
+                            openWindowWithPost(url, { id: id });
+                        } else {
+                            var el = $(this),
+                                //id = el.data('taskid'),
+                                dialog = $('#modal-task-details'),
+                                taskNameAr = $('#taskNameAr'),
+                                taskNameEn = $('#taskNameEn'),
+                                taskTypeNameAr = $('#taskTypeNameAr'),
+                                taskDateCreated = $('#taskDateCreated'),
+                                taskFromStaff = $('#taskFromStaff'),
+                                taskCompleted = $('#taskCompleted'),
+                                taskDateCompleted = $('#taskDateCompleted'),
+                                taskPlannedStartDate = $('#taskPlannedStartDate'),
+                                taskActualStartDate = $('#taskActualStartDate'),
+                                taskPlannedEndDate = $('#taskPlannedEndDate'),
+                                taskActualEndDate = $('#taskActualEndDate'),
+                                memoType = $('#memoType'),
+                                taskDescription = $('#taskDescription'),
+                                taskNote = $('#taskNote');
+
+                            BT.Ajax.GET('@Url.Action("GetTaskDetails", "Home")',
+                                { id: id },
+                                function (d) {
+                                    $('.memo').addClass('hide');
+                                    $("#tMemo").val("");
+                                    $("#subMemo").val("");
+                                    $("#textMemo").val("");
+                                    taskNameAr.val(d.TaskName);
+                                    taskNameEn.val(d.TaskNameEn);
+                                    taskTypeNameAr.val(d.TaskTypeAr);
+                                    taskDateCreated.val(BT.DateTime.getDate(d.DateCreated));
+                                    taskFromStaff.val(d.FromStaffName);
+                                    taskCompleted.val(d.Complete === 'Y' ? 'نعم' : 'لا');
+                                    taskDateCompleted.val(d.DateCompleted != null ? BT.DateTime.getDate(d.DateCompleted) : "");
+
+                                    taskPlannedStartDate.val(BT.DateTime.getDate(d.PlannedStartDate));
+                                    taskActualStartDate.val(d.ActualStartDate != null ? BT.DateTime.getDate(d.ActualStartDate) : "");
+                                    taskPlannedEndDate.val(BT.DateTime.getDate(d.PlannedEndDate));
+                                    taskActualEndDate.val(d.ActualEndDate != null ? BT.DateTime.getDate(d.ActualEndDate) : "");
+                                    taskDescription.val(d.Description);
+                                    taskNote.val(d.NOTES);
+                                    if (d.MemoId != null) {
+                                        $('.memo').removeClass('hide');
+                                        memoType.val(d.TypeMemo);
+
+
+
+                                    }
+                                    dialog.modal('show');
+                                    if (d.MemoId != null) {
+                                        $('#memoType1').off('click').on('click', function () {
+                                            var lnk = "@Url.Action("Index", "GetMemo")";
+                                            //var lnk = "@Url.Action("Index", "GetMemo", new { memoId="_id_" })";
+                                            //lnk = lnk.replace("_id_", d.MemoId);
+                                            //window.open(lnk, '_blank');
+                                            // openWindowWithPost(lnk, { memoId: d.MemoId });
+                                            openWindowWithPost(lnk, { memoId: d.MemoId });
+
+                                        });
+                                        dialog.modal('show');
+                                    }
+
+                                    el.closest('li').css('background-color', '#FFF');
+                                },
+                                false);
+                            $(".closeMemo").click(function () {
+                                $('.memo').addClass('hide');
+                                $("#tMemo").val("");
+                                $("#subMemo").val("");
+                                $("#textMemo").val("");
+                            });
+
+                        }
+                    });
+
+                },
+                false);
+        })
+            .trigger('click');
+
+
+
+    });
+</script>
+
+<script>
+    var CompleteFromView;
+    var sortType = "DES";
+    var multiselect;
+
+    function readLateOssTab() {
+        $("#LateOssGrid").data("kendoGrid").dataSource.read();
+    }
+    function onGetSubTasksData(e) {
+        return {
+            taskId: $('#hTaskId').val()
+        }
+    }
+
+    function getTasksData(e) {
+        return {
+            id: $('#hTaskId').val()
+        }
+    }
+
+    function onSubTasksWindowResize(e) {
+        $('#vSplitter').trigger('resize');
+        BT.Grid.kResize('#subTasksPane');
+    }
+
+    function onSubTasksWindowActivate(e) {
+        var w = $('#subTasksWindow').data('kendoWindow');
+        w.maximize();
+        w.restore();
+    }
+
+    function onTaskAttachWindowResize(e) {
+        $('#vAttachSplitter').trigger('resize');
+        BT.Grid.kResize('#taskAttachPane');
+    }
+
+    function onTaskAttachWindowActivate(e) {
+        var w = $('#taskAttachWindow').data('kendoWindow');
+        w.maximize();
+        w.restore();
+    }
+
+    var tr;
+
+    function onTrainingEdit(e) {
+
+        if (e.model.isNew() != true) {
+            tr = e.container;
+        }
+    }
+
+    function onTasksAttachmentFileSelect(e) {
+        var url = e.sender.options.async.saveUrl;
+        e.sender.options.async.saveUrl = url.replace('_Id_', getTasksAttachmentFileId());
+        var grid = $("#TasksAttachmentGrid").data("kendoGrid");
+        var file = e.files[0];
+        if (tr != null) {
+
+            var data = grid.dataItem(tr);
+            data.FILE_NAME = file.name;
+
+        }
+
+    }
+
+    function getTasksAttachmentFileId() {
+        var row = $(event.srcElement).closest("tr");
+        var grid = $(event.srcElement).closest("[data-role=grid]").data("kendoGrid");
+        var dataItem = grid.dataItem(row);
+        return dataItem.TaskAttachmentID;
+    }
+
+    function scheduler_DataBound(e) {
+        $('.k-event').off('click').on('click', function (ec) {
+            var scheduler = $('#scheduler').data('kendoScheduler');
+            var events = scheduler.select();
+
+            if (events.events.length) {
+                var id = events.events[events.events.length - 1].id,
+                    dialog = $('#modal-task-details'),
+                    taskNameAr = $('#taskNameAr'),
+                    taskNameEn = $('#taskNameEn'),
+                    taskTypeNameAr = $('#taskTypeNameAr'),
+                    taskDateCreated = $('#taskDateCreated'),
+                    taskFromStaff = $('#taskFromStaff'),
+                    taskCompleted = $('#taskCompleted'),
+                    taskDateCompleted = $('#taskDateCompleted'),
+                    taskDismissed = $('#taskDismissed'),
+                    taskDateDismissed = $('#taskDateDismissed'),
+                    taskPlannedStartDate = $('#taskPlannedStartDate'),
+                    taskActualStartDate = $('#taskActualStartDate'),
+                    taskPlannedEndDate = $('#taskPlannedEndDate'),
+                    taskActualEndDate = $('#taskActualEndDate'),
+                    taskDescription = $('#taskDescription')
+
+                BT.Ajax.GET('@Url.Action("GetTaskDetails", "Home")',
+                    { id: id },
+                    function (d) {
+                        taskNameAr.val(d.TaskName);
+                        taskNameEn.val(d.TaskNameEn);
+                        taskTypeNameAr.val(d.TaskTypeAr);
+                        taskDateCreated.val(BT.DateTime.getDate(d.DateCreated));
+                        taskFromStaff.val(d.FromStaffName);
+                        taskCompleted.val(d.Complete === 'Y' ? 'نعم' : 'لا');
+                        taskDateCompleted.val(BT.DateTime.getDate(d.DateCompleted));
+                        taskDismissed.val(d.Dismissed === 'Y' ? 'نعم' : 'لا');
+                        taskDateDismissed.val(BT.DateTime.getDate(d.DismissedDate));
+                        taskPlannedStartDate.val(BT.DateTime.getDate(d.PlannedStartDate));
+                        taskActualStartDate.val(BT.DateTime.getDate(d.ActualStartDate));
+                        taskPlannedEndDate.val(BT.DateTime.getDate(d.PlannedEndDate));
+                        taskActualEndDate.val(BT.DateTime.getDate(d.ActualEndDate));
+                        taskDescription.val(d.Description);
+
+                        dialog.modal('show');
+                    },
+                    false);
+            }
+        });
+    }
+
+    function scheduler_DataBound_Send(e) {
+        $('.k-event').off('click').on('click', function (ec) {
+            var scheduler = $('#scheduler1').data('kendoScheduler');
+            var events = scheduler.select();
+
+            if (events.events.length) {
+                var id = events.events[events.events.length - 1].id,
+                    dialog = $('#modal-task-details-send'),
+                    taskNameAr = $('#taskNameArS'),
+                    taskNameEn = $('#taskNameEnS'),
+                    taskTypeNameAr = $('#taskTypeNameArS'),
+                    taskDateCreated = $('#taskDateCreatedS'),
+                    taskFromStaff = $('#taskFromStaffS'),
+                    taskCompleted = $('#taskCompletedS'),
+                    taskDateCompleted = $('#taskDateCompletedS'),
+                    taskDismissed = $('#taskDismissedS'),
+                    taskDateDismissed = $('#taskDateDismissedS'),
+                    taskPlannedStartDate = $('#taskPlannedStartDateS'),
+                    taskActualStartDate = $('#taskActualStartDateS'),
+                    taskPlannedEndDate = $('#taskPlannedEndDateS'),
+                    taskActualEndDate = $('#taskActualEndDateS'),
+                    taskDescription = $('#taskDescriptionS')
+
+                BT.Ajax.GET('@Url.Action("GetTaskDetails", "Home")',
+                    { id: id },
+                    function (d) {
+                        taskNameAr.val(d.TaskName);
+                        taskNameEn.val(d.TaskNameEn);
+                        taskTypeNameAr.val(d.TaskTypeAr);
+                        taskDateCreated.val(BT.DateTime.getDate(d.DateCreated));
+                        taskFromStaff.val(d.FromStaffName);
+                        taskCompleted.val(d.Complete === 'Y' ? 'نعم' : 'لا');
+                        taskDateCompleted.val(BT.DateTime.getDate(d.DateCompleted));
+                        taskDismissed.val(d.Dismissed === 'Y' ? 'نعم' : 'لا');
+                        taskDateDismissed.val(BT.DateTime.getDate(d.DismissedDate));
+                        taskPlannedStartDate.val(BT.DateTime.getDate(d.PlannedStartDate));
+                        taskActualStartDate.val(BT.DateTime.getDate(d.ActualStartDate));
+                        taskPlannedEndDate.val(BT.DateTime.getDate(d.PlannedEndDate));
+                        taskActualEndDate.val(BT.DateTime.getDate(d.ActualEndDate));
+                        taskDescription.val(d.Description);
+
+                        dialog.modal('show');
+                    },
+                    false);
+            }
+        });
+    }
+
+
+    function memoOnOutDocumentsErpEditWindowActivate(e) {
+        var window = $('#memoOutDocumentsErpEditWindow').data('kendoWindow');
+
+        window.maximize();
+        window.restore();
+    }
+
+
+    function searchRecievedStartDateChange() {
+        var endPicker = $('#searchRecievedEndDate').data('kendoDatePicker'),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate() + 1);
+            endPicker.min(startDate);
+        }
+    }
+
+    function searchRecievedStartDateChangeSend() {
+        var endPicker = $('#searchRecievedEndDateSend').data('kendoDatePicker'),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate() + 1);
+            endPicker.min(startDate);
+        }
+    }
+
+    function searchRecievedEndDateChange() {
+        var startPicker = $('#searchRecievedStartDate').data('kendoDatePicker'),
+            endDate = this.value();
+
+        if (endDate) {
+            endDate = new Date(endDate);
+            endDate.setDate(endDate.getDate() - 1);
+            startPicker.max(endDate);
+        }
+    }
+
+    function searchRecievedEndDateChangeSend() {
+        var startPicker = $('#searchRecievedStartDateSend').data('kendoDatePicker'),
+            endDate = this.value();
+
+        if (endDate) {
+            endDate = new Date(endDate);
+            endDate.setDate(endDate.getDate() - 1);
+            startPicker.max(endDate);
+        }
+    }
+
+    function searchPlannedStartDateChange() {
+        var endPicker = $('#searchPlannedEndDate').data('kendoDatePicker'),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate() + 1);
+            endPicker.min(startDate);
+        }
+    }
+    function searchPlannedStartDateChangeSend() {
+        var endPicker = $('#searchPlannedEndDateSend').data('kendoDatePicker'),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate() + 1);
+            endPicker.min(startDate);
+        }
+    }
+
+
+    function retrnsortType() {
+        return sortType;
+    }
+
+    function searchPlannedEndDateChange() {
+        var startPicker = $('#searchPlannedStartDate').data('kendoDatePicker'),
+            endDate = this.value();
+
+        if (endDate) {
+            endDate = new Date(endDate);
+            endDate.setDate(endDate.getDate() - 1);
+            startPicker.max(endDate);
+        }
+    }
+
+    function searchPlannedEndDateChangeSend() {
+        var startPicker = $('#searchPlannedStartDateSend').data('kendoDatePicker'),
+            endDate = this.value();
+
+        if (endDate) {
+            endDate = new Date(endDate);
+            endDate.setDate(endDate.getDate() - 1);
+            startPicker.max(endDate);
+        }
+    }
+
+    function openWindowWithPostMemo(url, data) {
+        var form = document.createElement("form");
+        form.target = "_blank";
+        form.method = "POST";
+        form.action = url;
+        form.style.display = "none";
+
+        for (var key in data) {
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = key;
+            input.value = data[key];
+            form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
+
+    function getMemo(url) {
+        var content = url.split('_');
+        var id = content[1];
+        var memoToId = content[2];
+        var url1 = '@Url.Action("MemoContent", "Home")';
+        openWindowWithPostMemo(url1, { memoId: id, memoToId: memoToId });
+    }
+
+    jQuery(function ($) {
+        BT.Fn.autoSize();
+        BT.Fn.inputLimiter();
+    });
+
+    $(document).ready(function () {
+
+        @*if ("@isHrLogin" == "True" && "@isRamallah" == "N") {
+
+            //  setTimeout(function () {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("SendNotiEmployeeAgeAbove60", "Home")',
+                data: { staffId: "@User.Identity.Name.UserCode()" },
+                success: function () {
+
+
+                }
+            });
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("SendNotiEmployeeContractEndThroughWeek", "Home")',
+                data: { staffId: "@User.Identity.Name.UserCode()" },
+                success: function () {
+
+
+                }
+            });
+            /// }, 8000);
+        }*@
+
+        
+
+        if ("@isRamallah" == "N") {
+            readTaskUnCompleted();
+        }
+    });
+</script>

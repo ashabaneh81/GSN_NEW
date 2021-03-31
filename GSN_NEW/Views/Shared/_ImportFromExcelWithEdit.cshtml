@@ -1,0 +1,178 @@
+﻿<div class="k-rtl">
+    @(
+ Html.Kendo().Window()
+           .Name("modal-import-excel-edit")
+           .Width(700)
+           .Height(500)
+           .Title("Import Excel Edit")
+           .Visible(false)
+           .Scrollable(false)
+           .Modal(true)
+           .Draggable()
+           .Resizable()
+           .Events(e => e.Activate("onImportExcelEditWindowActivate"))
+           .Content(Html.Kendo().Splitter()
+                        .Name("modalImportExcelEditVerticalSplitter")
+                        .HtmlAttributes(new { @style = "height: 99.5%;  min-width: 500px;" })
+                        .Orientation(SplitterOrientation.Vertical)
+                        .Panes(verticalPanes =>
+                        {
+                            verticalPanes.Add()
+                                         .Size("100px")
+                                         .Resizable(true)
+                                         .Collapsible(false)
+                                         .Content(@<div id="importExcelEditResult"></div>);
+
+
+                            verticalPanes.Add()
+                                         .Scrollable(false)
+                                         .Collapsible(true)
+                                         .HtmlAttributes(new { id = "modalImportExcelEditPane" })
+                                         .Content(
+                                                  Html.Kendo().Splitter()
+                                                      .Name("horizontal")
+                                                      .HtmlAttributes(new { style = "height: 100%;" })
+                                                      .Panes(horizontalPanes =>
+                                                      {
+                                                          horizontalPanes.Add()
+                                                                         //.HtmlAttributes(new { id = "left-pane" })
+                                                                         .Content(@<table class="table table-striped table-bordered table-hover">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>Grid Columns</th>
+                                                                                </tr>
+                                                                            </thead>
+
+                                                                            <tbody>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div class="dd dd-draghandle">
+                                                                                            <ol class="dd-list" id="grid-cols-edit"></ol>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </tbody>
+
+                                                                        </table>);
+
+                                                          horizontalPanes.Add()
+                                                                         //.HtmlAttributes(new { id = "right-pane" })
+                                                                         .Content(@<table class="table table-striped table-bordered table-hover">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>Excel Columns</th>
+                                                                                </tr>
+                                                                            </thead>
+
+                                                                            <tbody>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div class="dd dd-draghandle">
+                                                                                            <ol class="dd-list" id="excel-cols-edit"></ol>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>);
+                                                      }).ToHtmlString()
+                                );
+
+                            verticalPanes.Add()
+                                         .Scrollable(true)
+                                         .Collapsible(true)
+                                         //.HtmlAttributes(new {id = "modalImportExcelGridPane"})
+                                         .Content(@<div id="importExcelEditGridResult"></div>);
+                                         
+                            verticalPanes.Add()
+                                         .Size("35px")
+                                         .Resizable(false)
+                                         .Collapsible(false)
+                                         .Content(@<table style="width: 100%;">
+                                            <tr>
+                                                <td style="width: 70%">
+                                                    <input type="file" id="importEditExcelUpload" />
+                                                </td>
+                                                <td>
+                                                    <button class="k-button k-button-icontext pull-right" type="button" id="importEditExcelBtn" style="margin-right: 5px">
+                                                        <i class="k-icon k-i-share"></i>
+                                                        Import
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </table>);
+
+                            verticalPanes.Add()
+                                         .Size("35px")
+                                         .Resizable(false)
+                                         .Collapsible(false)
+                                         .Content(@<div class="pane-content">
+                                                       <button class="k-button pull-right" id="modal-import-excel-editWindowCloseButton">
+                                                           <span class="k-icon k-i-close"></span>
+                                                           إغلاق
+                                                       </button>
+
+                                                       <button class="k-button k-primary pull-left" id="modal-import-excel-editWindowSaveButton">
+                                                           <span class="k-icon k-i-tick"></span>
+                                                           حفظ
+                                                       </button>
+                                                  </div>);
+                        }).ToHtmlString())
+    )
+</div>
+
+<style>
+    #grid-cols-edit, #excel-cols-edit {
+        width: 99%;
+        min-height: 100px;
+        margin: 0;
+        padding: 0;
+    }
+
+    li.placeholder {
+        background-color: #dceffd;
+        color: #52aef7;
+        text-align: right;
+    }
+</style>
+
+@(Html.Kendo().Sortable()
+        .For("#grid-cols-edit")
+        .ConnectWith("#excel-cols-edit")
+            .HintHandler("editHint")
+        .PlaceholderHandler("placeholder")
+        //.PlaceholderHandler("placeholder")
+        //.Cursor("url('" + Url.Content("~/content/web/sortable/grabbing.cur") + "'), default") _ImportFromExcelWithEdit
+)
+
+@(Html.Kendo().Sortable()
+        .For("#excel-cols-edit")
+        .ConnectWith("#grid-cols-edit")
+            .HintHandler("editHint")
+        .PlaceholderHandler("placeholder")
+        //.PlaceholderHandler("placeholder")
+        //.Cursor("url('" + Url.Content("~/content/web/sortable/grabbing.cur") + "'), default")
+)
+
+<script type="text/javascript" language="javascript">
+    function editHint(element)
+    {
+        return element.clone().addClass('hint');
+    }
+
+    function placeholder(element)
+    {
+        return element.clone().addClass('placeholder').text('drop here');
+    }
+
+    function onImportExcelEditWindowActivate(e)
+    {
+        var w = $('#modal-import-excel-edit').data('kendoWindow');
+        w.maximize();
+        w.restore();
+    }
+
+    @*jQuery(function ($)
+    {
+        BT.Grid.kAddExcelImportEdit(null, '@Url.Action("ImportEdit", "ImportExcel")');
+    });*@
+</script>

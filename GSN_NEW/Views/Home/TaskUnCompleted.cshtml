@@ -1,0 +1,504 @@
+﻿
+@using GSN_NEW.Models
+@model TasksModel
+
+@Html.Partial("GridBundle")
+
+
+<style>
+    .k-grid-content {
+        height: 100% !important;
+    }
+</style>
+<div class="k-rtl" style="height: 600px !important">
+    <div class="col-sm-12 col-xs-12">
+
+
+        @(Html.Kendo().Grid<TasksModel>()
+                      .Name("task")
+                              .Events(e => e.DataBound("OnDataBoundT"))
+                      .Columns(columns =>
+                      {
+
+                          columns.Bound(c => c.TaskID).Title("رقم متسلسل").ClientTemplate("<span id=\"TaskID\">#: TaskID #</span>").Width(150);
+                          columns.Bound(b => b.FROM_STAFF).Title("من الموظف").Width(150);
+                          columns.Bound(b => b.NAME_AR).Title(" المهمة ").Filterable(filter =>
+                          {
+                              filter.Extra(false);
+                              filter.Operators(op =>
+                              {
+                                  op.ForString(str => str.Clear());
+                                  op.ForString(str =>
+                                  {
+                                      str.Clear().Contains("Contains");
+                                  });
+                              });
+                          }).Width(150);
+                          columns.Bound(b => b.Form_ID).Title("رقم المصدر").ClientTemplate("<span id=\"formId\">#: Form_ID #</span>")
+                              .Filterable(f => { f.Cell(c => c.DataTextField("Form_ID")); })
+                              .Filterable(filter =>
+                          {
+                              filter.Extra(false);
+                              filter.Operators(op =>
+                              {
+                                  op.ForString(str => str.Clear());
+                                  op.ForString(str =>
+                                  {
+                                      str.Clear().Contains("Contains");
+                                  });
+                              });
+                          })
+                          .Width(150);
+                          columns.Bound(b => b.WHO_APPLY_SERVICE).Title("مقدم الطلب/خدمات الجمهور").Width(150);
+
+                          columns.Bound(b => b.SenderWard).Title("اسم الجهة المعنية المرسلة للوارد")
+                              //.Filterable(f => { f.Cell(c => c.DataTextField("SenderNameWard")); })
+                              .Filterable(filter =>
+                              {
+                                  filter.Extra(false);
+                                  filter.Operators(op =>
+                                  {
+                                      op.ForString(str => str.Clear());
+                                      op.ForString(str =>
+                                      {
+                                          str.Clear().Contains("Contains");
+                                      });
+                                  });
+                              })
+                          .Width(150);
+
+
+                          columns.Bound(b => b.TITLE).Title("العنوان")
+                              .Filterable(f => { f.Cell(c => c.DataTextField("TITLE")); }).Filterable(filter =>
+                          {
+                              filter.Extra(false);
+                              filter.Operators(op =>
+                              {
+                                  op.ForString(str => str.Clear());
+                                  op.ForString(str =>
+                                  {
+                                      str.Clear().Contains("Contains");
+                                  });
+                              });
+                          }).Width(150);
+                          columns.Bound(b => b.TASK_TYPE_AR).Title("نوع المهمة").Filterable(filter =>
+                          {
+                              filter.Extra(false);
+                              filter.Operators(op =>
+                              {
+                                  op.ForString(str => str.Clear());
+                                  op.ForString(str =>
+                                  {
+                                      str.Clear().Contains("Contains");
+                                  });
+                              });
+                          }).Width(150);
+                          columns.Bound(c => c).Title("الحركات على المهمة").Sortable(false).Filterable(false).ClientTemplate(
+                          "<a id='url_#: TaskID #' href='~/'+'#: URL #' class='blue hidden url' style='padding:2px'>" +
+                     "<i class='ace-icon fa fa-link bigger-130 tooltip-info' data-rel='tooltip' data-placement='left' title='الرابط'></i></a>" +
+                    "<a role='button' id='start_#: TaskID #' class='green tooltip-success startTask hidden' data-taskid='#:TaskID #' data-rel='tooltip' data-placement='left' title='بدء المهمة' style='padding:2px'>" +
+        "<i class='ace-icon glyphicon glyphicon-play bigger-130'></i></a>" +
+        "<a role='button' id='taskChat_#: TaskID #' class='red tooltip-error taskChat' data-taskid='#:TaskID #' data-rel='tooltip' data-placement='left' title='المحادثات' style='padding:2px'>" +
+        "<i class='ace-icon glyphicon glyphicon-comment bigger-130'></i></a>" +
+         "<a id='subTask_#: TaskID #' class='blue tooltip-info subTask' data-taskid='#:TaskID #' data-rel='tooltip' data-placement='right' title='المهام الفرعية' style='padding:2px'>" +
+        "<i class='ace-icon glyphicon glyphicon-list bigger-130'></i></a>" +
+        "<a id='details_#: TaskID #' class='orange tooltip-warning details' data-taskid='#:TaskID #' data-rel='tooltip' data-placement='right' title='التفاصيل' style='padding:2px'>" +
+        "<i class='ace-icon glyphicon glyphicon-info-sign bigger-130'></i></a>" +
+        "<a id='taskAttach_#: TaskID #' class='dark taskAttach' data-taskid='#:TaskID #' data-rel='tooltip' data-placement='right' title='المرفقات' style='padding:2px'>" +
+        "<i class='ace-icon glyphicon glyphicon-paperclip bigger-130'></i></a>" +
+        " <a role='button' id='tasknOTE_#: TaskID #' class='dark tasknOTE' data-taskid='#:TaskID #' data-rel='tooltip' data-placement='left' title='الملاحظات' style='padding:2px'>" +
+                                "<i class='ace-icon glyphicon glyphicon-pencil bigger-130'></i></a>" +
+        "<a  role='button' id='entTask_#: TaskID #' class='red tooltip-error entTask' data-taskid='#:TaskID #' data-rel='tooltip' data-placement='left' title='إنهاءالمهمة' style='padding:2px'>" +
+        "<i class='ace-icon glyphicon glyphicon-ok bigger-130'></i></a>")
+                    .Width(150);
+                          columns.Bound(b => b.TASK_TYPE_ID).Hidden(true).Width(150);
+                          columns.Bound(b => b.IS_MANUAL).Hidden(true).Width(150);
+                          columns.Bound(b => b.URL).ClientTemplate("<span id=\"url\">#: URL #</span>").Hidden(true).Width(150);
+                          columns.Bound(b => b.DATE_CREATED).Title(" تاريخ انشاء المهمة").Width(150);
+                          columns.Bound(c => c.ACTUAL_STRAT_DATE).Title("تاريخ البداية الفعلي").Width(150);
+                          columns.Bound(b => b.PLANNED_START_DATE).Title("تاريخ البداية المخطط").Width(150);
+                          columns.Bound(c => c.PLANNED_END_DATE).Title("تاريخ الانهاء المخطط").Width(150);
+                          columns.Bound(c => c.DESCRIPTION).Title("وصف المهمة").Width(150).Filterable(filter =>
+                          {
+                              filter.Extra(false);
+                              filter.Operators(op =>
+                              {
+                                  op.ForString(str => str.Clear());
+                                  op.ForString(str =>
+                                  {
+                                      str.Clear().Contains("Contains");
+                                  });
+                              });
+                          });
+                          columns.Bound(c => c.NOTES).Title("ملاحظات الموظف المرسل اليه").Filterable(filter =>
+                          {
+                              filter.Extra(false);
+                              filter.Operators(op =>
+                              {
+                                  op.ForString(str => str.Clear());
+                                  op.ForString(str =>
+                                  {
+                                      str.Clear().Contains("Contains");
+                                  });
+                              });
+                          }).Width(150);
+
+                          columns.Command(commands =>
+                          {
+                          }).Title("اوامر").Width(200).Hidden(true).HtmlAttributes(new { @class = "commandsCol" });
+
+
+
+                      })
+                      .ToolBar(toolbar =>
+                      {
+                          toolbar.Excel();
+
+                      })
+                      .Editable(editable => editable.Mode(GridEditMode.InLine)) // Use inline editing mode
+                      .AutoBind(false)
+                      .Scrollable()
+                      .Groupable()
+                      //.Navigatable()
+                      .Excel(x => x.FileName("Incoming.xlsx").Filterable(true).ProxyURL(Url.Action("Excel_Export_Save", "Bulding")))
+
+                      .Resizable(resize => resize.Columns(true))
+                      .Selectable(selectable => selectable.Mode(GridSelectionMode.Multiple))
+                      .Pageable(x => x.Refresh(true).PageSizes(true).ButtonCount(5).PageSizes(new List<int> { 10, 20, 50, 100, 200 }))
+                      .Sortable(sortable => sortable
+                          .AllowUnsort(true)
+                          .SortMode(GridSortMode.MultipleColumn))
+                      .Reorderable(reorder => reorder.Columns(true))
+                      .Filterable(ftb => ftb.Mode(GridFilterMode.Row))
+                      //.AutoBind(false)
+                      .DataSource(dataSource => dataSource
+
+                          .Ajax()
+                          .Model(model =>
+                          {
+                              model.Id(x => x.TaskID); // Specify the property which is the unique identifier of the model
+                      model.Field(f => f.TaskID).Editable(false);
+
+
+
+
+                          })
+                          .Sort(sort => sort.Add("TaskID").Descending())
+
+                          .Read(read => read.Action("ReadTaskUnCompleted", "Home"))
+                      )
+        )
+
+    </div>
+</div>
+<script>
+    function openWindowWithPost(url) {
+        var form = document.createElement("form");
+        form.target = "_blank";
+        //form.method = "GET";
+        form.action = url;
+        form.style.display = "none";
+
+        form.submit();
+    }
+    function openWindowWithPost1(url, data) {
+        var form = document.createElement("form");
+        form.target = "_blank";
+        form.method = "POST";
+        form.action = url;
+        form.style.display = "none";
+
+        for (var key in data) {
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = key;
+            input.value = data[key];
+            form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
+    $(document).on("dblclick", '#task table tr', function() {
+        var url = $(this).find("#url").html();
+
+        if (url != "null") {
+            if (url.includes("&amp;")) {
+                url = url.replace("&amp;", "&");
+            }
+
+            var oo= url.split(/[\/\\]/);
+
+            var rootDir = "@Url.Content("~/")";
+             url = rootDir + url;
+             window.open(url, '_blank');
+
+        }
+
+
+    });
+    function OnDataBoundT(e) {
+        var rows = e.sender.tbody.children();
+
+        for (var j = 0; j < rows.length; j++) {
+            var row = $(rows[j]);
+            var dataItem = e.sender.dataItem(row);
+            if (dataItem.get("URL") != "") {
+                var id = dataItem.get("TaskID");
+                $("#url_" + id).removeClass("hidden");
+            }
+
+            var ismanual = dataItem.get("IS_MANUAL");
+            var id1 = dataItem.get("TaskID");
+            if (ismanual != "Y") {
+                $("#url_"+id1).hide();
+                $("#start_" + id1).hide();
+                $("#taskChat_" + id1).hide();
+                $("#subTask_" + id1).hide();
+                $("#details_" + id1).hide();
+                $("#taskAttach_" + id1).hide();
+                $("#tasknOTE_" + id1).hide();
+                $("#entTask_" + id1).hide();
+            } else {
+                $("#url_" + id1).hide();
+                $("#start_" + id1).show();
+                $("#taskChat_" + id1).show();
+                $("#subTask_" + id1).show();
+                $("#details_" + id1).show();
+                $("#taskAttach_" + id1).show();
+                $("#tasknOTE_" + id1).show();
+                $("#entTask_" + id1).show();
+            }
+            if (dataItem.get("ACTUAL_STRAT_DATE") == null) {
+                var id = dataItem.get("TaskID");
+                $("#start_" + id).removeClass("hidden");
+
+            }
+
+
+        }
+    }
+    $(document).on('click','.startTask', function (e) {
+
+        var el = $(this);
+        var id = el.data('taskid');
+
+        el.closest('li').css('background-color', '#FFF');
+
+        bootbox.confirm('هل انت متأكد؟', function (r) {
+            if (r) {
+                BT.Ajax.POST('@Url.Action("StartTask", "Home")',
+                    {
+                        id: id
+                    },
+                    function (d) {
+                        el.hide();
+                        //$('#dismissed-tasks').prepend(el.closest('li.item-default').detach());
+                    },
+                    true);
+            }
+        });
+    });
+
+    $(document).on('click','.taskChat', function () {
+
+        $(this).closest('li').css('background-color', '#FFF');
+
+        BT.Chat.show('ta', $(this).data('taskid'), '@Url.Action("GetMsgsById", "Home")', '@Url.Action("SendMsg", "Home")');
+    });
+    $(document).on('click','.subTask', function (e) {
+
+        var el = $(this),
+            id = el.data('taskid'),
+            resultGrid = '#subTasksGrid',
+            w = '#subTasksWindow',
+            closeBtn = $('#subTaskWindowCloseButton');
+
+        $('#hTaskId').val(id);
+
+        closeBtn.off('click').on('click', function (ec) {
+            BT.Dialog.kClose(w);
+        });
+
+        BT.Grid.kEmpty(resultGrid);
+
+        BT.Dialog.kOpen(w);
+
+        BT.Grid.kReload(resultGrid);
+    });
+    $(document).on('click','.taskAttach', function (e) {
+
+        var el = $(this),
+            id = el.data('taskid'),
+            resultGrid = '#TasksAttachmentGrid',
+            w = '#taskAttachWindow',
+            closeBtn = $('#taskAttachWindowCloseButton');
+
+        $('#hTaskId').val(id);
+
+        closeBtn.off('click').on('click', function (ec) {
+            BT.Dialog.kClose(w);
+        });
+
+        BT.Grid.kEmpty(resultGrid);
+
+        BT.Dialog.kOpen(w);
+
+        BT.Grid.kReload(resultGrid);
+    });//taskAttach
+    $(document).on('click','.tasknOTE', function (e) {
+
+        var el = $(this),
+            id = el.data('taskid');
+        BT.Ajax.GET('@Url.Action("GetTaskDetails", "Home")',
+            { id: id },
+            function (d) {
+                $("#noteTask").html(d.NOTES);
+                $("#modal-NoteTask").modal('show');
+            });
+        $("#notesTaskSaveButton").off('click').on('click', function () {
+            if ($("#noteTask").val() == "") {
+                BT.showErrorNotice("الملاحظة حقل ضروري");
+            }
+            else {
+                $.ajax({
+                    type: 'post',
+                    url: "@Url.Action("NoteTask", "Home")",
+                    data: {
+                        id: id,
+                        note: $("#noteTask").val()
+                    },
+                    success: (function (data) {
+                        if (!data.done) {
+                            BT.showErrorNotice(data.msg);
+                        }
+                        else {
+
+                            BT.showSuccessNotice();
+                            $("#noteTask").val("");
+                            $("#modal-NoteTask").modal('hide');
+                            $("#task").data("kendoGrid").dataSource.read();
+
+                        }
+
+                    })
+                });
+            }
+
+        });
+    });
+    $(document).on('click','.entTask', function (e) {
+
+
+        var el = $(this);
+        var tid = el.data('taskid');
+        bootbox.confirm('هل انت متأكد من إنهاء المهمة؟', function (r) {
+            if (r) {
+                BT.Ajax.POST('@Url.Action("CompleteTask", "Home")',
+                    {
+                        id: tid
+                    },
+                    function () {
+                        el.hide();
+                        $("#task").data("kendoGrid").dataSource.read();
+                        $("#taskCompleted").data("kendoGrid").dataSource.read();
+                    },
+                    true);
+            }
+
+        });
+
+    });
+    $(document).on('click','.details', function (e) {
+
+        var el = $(this),
+            id = el.data('taskid'),
+            dialog = $('#modal-task-details'),
+            taskNameAr = $('#taskNameAr'),
+            taskNameEn = $('#taskNameEn'),
+            taskTypeNameAr = $('#taskTypeNameAr'),
+            taskDateCreated = $('#taskDateCreated'),
+            taskFromStaff = $('#taskFromStaff'),
+            taskCompleted = $('#taskCompleted'),
+            taskDateCompleted = $('#taskDateCompleted'),
+            taskPlannedStartDate = $('#taskPlannedStartDate'),
+            taskActualStartDate = $('#taskActualStartDate'),
+            taskPlannedEndDate = $('#taskPlannedEndDate'),
+            taskActualEndDate = $('#taskActualEndDate'),
+            memoType = $('#memoType'),
+            taskDescription = $('#taskDescription'),
+            taskNote = $('#taskNote');
+
+        BT.Ajax.GET('@Url.Action("GetTaskDetails", "Home")',
+            { id: id },
+            function (d) {
+                $('.memo').addClass('hide');
+                $("#tMemo").val("");
+                $("#subMemo").val("");
+                $("#textMemo").val("");
+                taskNameAr.val(d.TaskName);
+                taskNameEn.val(d.TaskNameEn);
+                taskTypeNameAr.val(d.TaskTypeAr);
+                taskDateCreated.val(BT.DateTime.getDate(d.DateCreated));
+                taskFromStaff.val(d.FromStaffName);
+                taskCompleted.val(d.Complete === 'Y' ? 'نعم' : 'لا');
+                taskDateCompleted.val(d.DateCompleted != null ? BT.DateTime.getDate(d.DateCompleted) : "");
+                taskPlannedStartDate.val(BT.DateTime.getDate(d.PlannedStartDate));
+                taskActualStartDate.val(d.ActualStartDate != null ? BT.DateTime.getDate(d.ActualStartDate) : "");
+                taskPlannedEndDate.val(BT.DateTime.getDate(d.PlannedEndDate));
+                taskActualEndDate.val(d.ActualEndDate != null ? BT.DateTime.getDate(d.ActualEndDate) : "");
+                taskDescription.val(d.Description);
+                taskNote.val(d.NOTES);
+                if (d.MemoId != null) {
+                    $('.memo').removeClass('hide');
+                    memoType.val(d.TypeMemo);
+                }
+                dialog.modal('show');
+                if (d.MemoId != null) {
+                    $('#memoType1').off('click').on('click', function () {
+                        @*var lnk = "@Url.Action("Index", "GetMemo", new { memoId="_id_" })";
+                        lnk = lnk.replace("_id_", d.MemoId);
+                        window.open(lnk, '_blank');*@
+                        var url = '@Url.Action("Index", "GetMemo")';
+                        openWindowWithPost1(url, { memoId: d.MemoId });
+                    });
+                    dialog.modal('show');
+                }
+
+                el.closest('li').css('background-color', '#FFF');
+            },
+            false);
+        $(".closeMemo").click(function () {
+            $('.memo').addClass('hide');
+            $("#tMemo").val("");
+            $("#subMemo").val("");
+            $("#textMemo").val("");
+        });
+
+    });
+
+    $(document).ready(function () {
+        $("#task .k-i-refresh").click(function () {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetTaskNumber", "Home")',
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (form) {
+                    $("#taskUn").html(form.taskUn);
+                    $("#taskUnSend").html(form.taskSendUn);
+
+                }
+            });
+        });
+
+    });
+    function readTaskUnCompleted()
+    {
+        var grid = $("#task").data("kendoGrid");
+        grid.dataSource.read();
+    }
+
+
+</script>

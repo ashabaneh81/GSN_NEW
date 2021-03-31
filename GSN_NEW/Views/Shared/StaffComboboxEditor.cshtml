@@ -1,0 +1,29 @@
+﻿@(
+ Html.Kendo().ComboBox()
+ .Name("STAFF_ID")
+ .HtmlAttributes(new { data_value_primitive = "true" })
+ .Placeholder("إختر")
+ .Filter(FilterType.Contains)
+  //.MinLength(1).Delay(1000).AutoBind(false)
+
+  .DataSource(source =>
+  {
+      source.Custom()
+       .PageSize(50)
+        .ServerFiltering(true)
+        .Type("aspnetmvc-ajax") //Set this type if you want to use DataSourceRequest and ToDataSourceResult instances
+         .Transport(transport =>
+         {
+             transport.Read("ComboReadStaff", "Inspectors");
+         })
+         .Schema(schema =>
+         {
+             schema.Data("Data") //define the [data](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.data) option
+                .Total("Total"); //define the [total](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.total) option
+         });
+  }).DataTextField("STAFF_NAME") //Specifies which property of the Product to be used by the combobox as a text.
+     .DataValueField("STAFF_CODE") //Specifies which property of the Product to be used by the combobox as a value.
+        //.Value(Model.Id.ToString())
+)
+
+

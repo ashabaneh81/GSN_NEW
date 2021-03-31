@@ -1,0 +1,63 @@
+﻿<li class="red">
+    <a data-toggle="dropdown" class="dropdown-toggle" href="#" id="staff-memo-notif">
+        <i class="ace-icon fa fa-file icon-animated-vertical"></i>
+        <span class="badge badge-warning" id="staff-memo-notif-count">0</span>
+    </a>
+
+    <ul class="dropdown-menu-left dropdown-navbar dropdown-menu dropdown-caret dropdown-close">
+        <li class="dropdown-header">
+            <i class="ace-icon fa fa-file-o"></i>
+            <span id="staff-memo-notif-header-count">0</span> Memos
+        </li>
+
+        <li class="dropdown-content">
+            <ul class="dropdown-menu dropdown-navbar" id="staff-memo-notif-ul"></ul>
+        </li>
+
+        <li class="dropdown-footer"><a href="#" id="msg-memos-load-more">Load more</a></li>
+    </ul>
+</li>
+
+<script type="text/javascript" language="javascript">
+    jQuery(function ($)
+    {
+        var lastMemoNotifPage = 1;
+        $('#msg-memos-load-more').off('click').on('click', function (e)
+        {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var cnt1 = $('#staff-memo-notif-count'),
+                cnt2 = $('#staff-memo-notif-header-count');
+
+            BT.Ajax.GET('@Url.Action("GetInbox", "MemoErp")',
+                { page: lastMemoNotifPage, sort: 'd', filter: '', isNotif: true },
+                function (d)
+                {
+                    lastMemoNotifPage++;
+
+                    cnt1.html(parseInt(cnt1.html(), 10) + d.unread);
+                    cnt2.html(parseInt(cnt2.html(), 10) + d.unread);
+
+                    var res = '';
+
+                    $.each(d.result, function (i, v)
+                    {
+                        res += '<li data-memoid="' + v.Id + '">' +
+                        '<a href="#" class="xMemoNotifs">' +
+                        '<div class="clearfix">' +
+                        '<span class="pull-left">' +
+                        v.SenderName + ': ' + v.Subject +
+                        '</span>' +
+                        '</div>' +
+                        '</a>' +
+                        '</li>';
+                    });
+
+                    $('#staff-memo-notif-ul').append(res);
+                },
+                false);
+        })
+        .trigger('click');
+    });
+</script>

@@ -1,0 +1,158 @@
+﻿<div class="k-rtl">
+    @(
+ Html.Kendo().Window()
+           .Name("modal-import-excel")
+           .Width(700)
+           .Height(500)
+           .Title("Import Excel")
+           .Visible(false)
+           .Scrollable(false)
+           .Modal(true)
+           .Draggable()
+           .Resizable()
+           .Events(e => e.Activate("onImportExcelWindowActivate"))
+           .Content(Html.Kendo().Splitter()
+                        .Name("modalImportExcelVerticalSplitter")
+                        .HtmlAttributes(new { @style = "height: 99.5%;  min-width: 500px;" })
+                        .Orientation(SplitterOrientation.Vertical)
+                        .Panes(verticalPanes =>
+                        {
+                            verticalPanes.Add()
+                                         .Size("100px")
+                                         .Resizable(true)
+                                         .Collapsible(false)
+                                         .Content(@<div id="importExcelResult"></div>);
+
+
+                            verticalPanes.Add()
+                                         .Scrollable(false)
+                                         .Collapsible(false)
+                                         .HtmlAttributes(new { id = "modalImportExcelPane" })
+                                         .Content(
+                                                  Html.Kendo().Splitter()
+                                                      .Name("horizontal")
+                                                      .HtmlAttributes(new { style = "height: 100%;" })
+                                                      .Panes(horizontalPanes =>
+                                                      {
+                                                          horizontalPanes.Add()
+                                                                         .HtmlAttributes(new { id = "left-pane" })
+                                                                         .Content(@<table class="table table-striped table-bordered table-hover">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>Grid Columns</th>
+                                                                                </tr>
+                                                                            </thead>
+
+                                                                            <tbody>@*id="importedResultTableBody"*@
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div class="dd dd-draghandle">
+                                                                                            <ol class="dd-list" id="grid-cols"></ol>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </tbody>
+
+                                                                        </table>);
+
+                                                          horizontalPanes.Add()
+                                                                         .HtmlAttributes(new { id = "right-pane" })
+                                                                         .Content(@<table class="table table-striped table-bordered table-hover">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>Excel Columns</th>
+                                                                                </tr>
+                                                                            </thead>
+
+                                                                            <tbody>@*id="importedResultTableBody"*@
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div class="dd dd-draghandle">
+                                                                                            <ol class="dd-list" id="excel-cols"></ol>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>);
+                                                      }).ToHtmlString()
+                                );
+
+
+                            verticalPanes.Add()
+                                         .Size("35px")
+                                         .Resizable(false)
+                                         .Collapsible(false)
+                                         .Content(@<table style="width: 100%;">
+                                            <tr>
+                                                <td style="width: 70%">
+                                                    <input type="file" id="importExcelUpload" />
+                                                </td>
+                                                <td>
+                                                    <button class="k-button k-button-icontext pull-right" type="button" id="importExcelBtn" style="margin-right: 5px">
+                                                        <i class="k-icon k-i-share"></i>
+                                                        Import
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </table>);
+
+                        }).ToHtmlString())
+    )
+</div>
+
+<style>
+    #grid-cols, #excel-cols {
+        width: 99%;
+        min-height: 100px;
+        margin: 0;
+        padding: 0;
+    }
+
+    li.placeholder {
+        background-color: #dceffd;
+        color: #52aef7;
+        text-align: right;
+    }
+</style>
+
+@(Html.Kendo().Sortable()
+        .For("#grid-cols")
+        .ConnectWith("#excel-cols")
+        .HintHandler("hint")
+        .PlaceholderHandler("placeholder")
+        //.PlaceholderHandler("placeholder")
+        //.Cursor("url('" + Url.Content("~/content/web/sortable/grabbing.cur") + "'), default")
+)
+
+@(Html.Kendo().Sortable()
+        .For("#excel-cols")
+        .ConnectWith("#grid-cols")
+        .HintHandler("hint")
+        .PlaceholderHandler("placeholder")
+        //.PlaceholderHandler("placeholder")
+        //.Cursor("url('" + Url.Content("~/content/web/sortable/grabbing.cur") + "'), default")
+)
+
+<script type="text/javascript" language="javascript">
+    function hint(element)
+    {
+        return element.clone().addClass('hint');
+    }
+
+    function placeholder(element)
+    {
+        return element.clone().addClass('placeholder').text('drop here');
+    }
+
+    function onImportExcelWindowActivate(e)
+    {
+        var w = $('#modal-import-excel').data('kendoWindow');
+        w.maximize();
+        w.restore();
+    }
+
+    @*jQuery(function ($)
+    {
+        BT.Grid.kAddExcelImport(null, '@Url.Action("Import", "ImportExcel")');
+    });*@
+</script>

@@ -1,0 +1,10 @@
+D:\GSN_NEW\ClassLibrary1\bin\Debug\ClassLibrary1.dll.config
+D:\GSN_NEW\ClassLibrary1\bin\Debug\ClassLibrary1.dll
+D:\GSN_NEW\ClassLibrary1\bin\Debug\ClassLibrary1.pdb
+D:\GSN_NEW\ClassLibrary1\bin\Debug\EntityFramework.dll
+D:\GSN_NEW\ClassLibrary1\bin\Debug\EntityFramework.SqlServer.dll
+D:\GSN_NEW\ClassLibrary1\bin\Debug\EntityFramework.xml
+D:\GSN_NEW\ClassLibrary1\bin\Debug\EntityFramework.SqlServer.xml
+D:\GSN_NEW\ClassLibrary1\obj\Debug\ClassLibrary1.csprojResolveAssemblyReference.cache
+D:\GSN_NEW\ClassLibrary1\obj\Debug\ClassLibrary1.dll
+D:\GSN_NEW\ClassLibrary1\obj\Debug\ClassLibrary1.pdb

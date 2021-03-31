@@ -1,0 +1,47 @@
+﻿<ul id="kGridCommandCtxtMnu" class="kCtxtMnu"></ul>
+<ul id="kGridRowCtxtMnu" class="kCtxtMnu"></ul>
+<ul id="kGridCtxtMnu" class="kCtxtMnu"></ul>
+
+
+<script type="text/javascript" language="javascript">
+    jQuery(function ($)
+    {
+        BT.Grid.kAddContextMenu();
+    });
+</script>
+
+<style>
+    .kCtxtMnu {
+        -moz-min-width: 150px;
+        -ms-min-width: 150px;
+        -o-min-width: 150px;
+        -webkit-min-width: 150px;
+        min-width: 150px;
+    }
+
+    /*.kGridMnuCss /* for a specific menu instance *
+    ,
+    .k-menu-horizontal /* for all horizontal menus * {
+        display: inline-block;
+    }
+
+        .kGridMnuCss > .k-last /* for a specific menu instance *
+        ,
+        .k-menu-horizontal > .k-last /* for all horizontal menus * {
+            border-width: 0;
+        }*/
+
+    /*div.kGridMnuCss {
+        -ms-border-radius: 4px;
+        border-radius: 4px;
+    }
+
+        div.kGridMnuCss > div.k-overflow-anchor {
+            border-width: 0;
+            -ms-border-radius: 4px;
+            border-radius: 4px;
+            height: auto;
+            width: auto;
+            line-height: 241%;
+        }*/
+</style>

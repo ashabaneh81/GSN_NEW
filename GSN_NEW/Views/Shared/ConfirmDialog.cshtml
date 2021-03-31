@@ -1,0 +1,56 @@
+﻿<div class="k-rtl">
+    @(Html.Kendo().Window()
+        .Name("confirmWindow")
+        .Width(500)
+        .Title("تأكيد!")
+        .Visible(false)
+        .Modal(true)
+        .Draggable()
+    )
+</div>
+
+<script type="text/x-kendo-template" id="confirmWindowTemplate" >
+    <h2 class="red redMessage">هل انت متأكد؟</h2>
+    <hr />
+
+    <button class="k-button" id="confirmWindowYesButton">
+        <span class="k-icon k-i-tick"></span>
+        نعم
+    </button>
+    <button class="k-button" id="confirmWindowNoButton">
+        <span class="k-icon k-i-close"></span>
+        لا
+    </button>
+</script>
+
+
+<script type="text/javascript" language="javascript">
+    function onDelete(e)
+    {
+        e.preventDefault();
+
+        var cw = $('#confirmWindow').data('kendoWindow');
+
+        if (cw.element.is(':visible')) return;
+
+        var wr = kendo.template($('#confirmWindowTemplate').html());
+        var grid = this;
+        var row = $(e.target).closest('tr'); //get the row for deletion
+        var data = this.dataItem(row); //get the row data so it can be referred later
+        cw.content(wr/*(data)*/); //send the row data object to the template and render it
+        cw.open().center();
+
+        $('#confirmWindowYesButton').off('click').on('click', function () {
+            //var grid = $(e.delegateTarget).data('kendoGrid');
+            grid.dataSource.remove(data); //prepare a "destroy" request
+            grid.dataSource.sync(); //actually send the request (might be ommited if the autoSync option is enabled in the dataSource)
+            cw.close();
+        });
+
+        $('#confirmWindowNoButton').off('click').on('click', function ()
+        {
+            grid.cancelChanges();
+            cw.close();
+        });
+    }
+</script>

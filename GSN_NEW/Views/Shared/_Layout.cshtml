@@ -1,0 +1,1055 @@
+﻿@using System.Linq
+@using ErpDal
+@using GSN_NEW.Helpers
+@using Microsoft.Ajax.Utilities
+
+@{
+    var db = Db.Get();
+
+    if (User.Identity.IsAuthenticated)
+    {
+        if (Session["theme"] == null)
+        {
+            var uid = User.Identity.Name.UserCode();
+            var user = db.STAFF_ERP.Single(x => x.ID == uid);
+            if (user.THEMES.IsNullOrWhiteSpace())
+            {
+                Session["theme"] = "bootstrap";
+            }
+            else
+            {
+                Session["theme"] = user.THEMES;
+            }
+        }
+    }
+    else
+    {
+        Session["theme"] = "bootstrap";
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+<meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+    <style>
+        .trial {
+            display: none;
+        }
+
+        .gritter-with-image p {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .gritter-title span {
+            font-size: 17px;
+        }
+    </style>
+
+<title>
+    @Html.Raw(ViewBag.PageTitle)
+</title>
+
+<link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+
+<!-- bootstrap & fontawesome -->
+<link rel="stylesheet" href="~/assets/css/bootstrap.min.css"/>
+<link href="~/assets/css/ui.jqgrid.css" rel="stylesheet" />
+<link rel="stylesheet" href="~/assets/css/font-awesome.min.css"/>
+<link rel="stylesheet" href="~/assets/css/jquery.gritter.css"/>
+
+<!-- page specific plugin styles -->
+    <link rel="stylesheet" href="~/assets/css/jquery-ui.min.css" />
+
+<!-- text fonts -->
+<link rel="stylesheet" href="~/assets/css/ace-fonts.css"/>
+
+<!-- ace styles -->
+<link rel="stylesheet" href="~/assets/css/ace.min.css"/>
+
+<!--[if lte IE 9]>
+    <link rel="stylesheet" href="~/assets/css/ace-part2.min.css"/>
+<![endif]-->
+<link rel="stylesheet" href="~/assets/css/ace-skins.min.css"/>
+<link rel="stylesheet" href="~/assets/css/ace-rtl.min.css"/>
+
+<link rel="stylesheet" href="~/assets/css/mystyle.css"/>
+<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+
+<link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.common.min.css")" rel="stylesheet" type="text/css"/>
+<link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.mobile.all.min.css")" rel="stylesheet" type="text/css"/>
+<link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.min.css")" rel="stylesheet" type="text/css"/>
+<link href="~/assets/css/select2.css" rel="stylesheet"/>
+@RenderSection("styles", required: false)
+
+<!-- Kendo Themes -->
+@switch (Session["theme"].ToString())
+{
+    case "black":
+    {
+        Session["themeName"] = "Black";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.black.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.black.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+    case "blueOpal":
+    {
+        Session["themeName"] = "Blue Opal";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.blueopal.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.blueopal.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+    case "bootstrap":
+    {
+        Session["themeName"] = "Bootstrap";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.bootstrap.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.bootstrap.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+    case "default":
+    {
+        Session["themeName"] = "Default";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.default.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.default.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+    case "fiori":
+    {
+        Session["themeName"] = "Fiori";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.fiori.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.fiori.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+    case "flat":
+    {
+        Session["themeName"] = "Flat";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.flat.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.flat.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+    case "highContrast":
+    {
+        Session["themeName"] = "High Contrast";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.highcontrast.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.highcontrast.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+    case "material":
+    {
+        Session["themeName"] = "Material";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.material.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.material.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+    case "materialBlack":
+    {
+        Session["themeName"] = "Material Black";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.materialblack.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.materialblack.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+    case "metro":
+    {
+        Session["themeName"] = "Metro";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.metro.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.metro.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+    case "metroBlack":
+    {
+        Session["themeName"] = "Metro Black";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.metroblack.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.metroblack.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+    case "moonlight":
+    {
+        Session["themeName"] = "Moonlight";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.moonlight.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.moonlight.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+    case "nova":
+    {
+        Session["themeName"] = "Nova";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.nova.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.nova.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+    case "office365":
+    {
+        Session["themeName"] = "Office 365";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.office365.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.office365.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+    case "silver":
+    {
+        Session["themeName"] = "Silver";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.silver.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.silver.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+    case "uniform":
+    {
+        Session["themeName"] = "Uniform";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.uniform.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.uniform.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+    default:
+    {
+        Session["themeName"] = "Bootstrap";
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.bootstrap.min.css")" rel="stylesheet" type="text/css"/>
+        <link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.dataviz.bootstrap.min.css")" rel="stylesheet" type="text/css"/>
+    }
+        break;
+}
+<!-- Kendo Themes -->
+
+<link href="@Url.Content("~/Content/kendo/2015.3.1111/kendo.rtl.min.css")" rel="stylesheet" type="text/css"/>
+<link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css"/>
+     <link rel="stylesheet" href="~/assets/css/jquery.contextMenu.css" />
+
+<script src="~/assets/js/jquery.min.js"></script>
+<script src="~/assets/js/jquery-ui.min.js"></script>
+<script src="~/assets/js/bootstrap.min.js"></script>
+<script src="~/assets/js/jquery.mobile.custom.min.js"></script>
+
+<!-- ace settings handler -->
+<script src="~/assets/js/ace-extra.min.js"></script>
+
+
+
+<script src="~/assets/js/jquery.gritter.min.js"></script>
+<script src="@Url.Content("~/Scripts/kendo/2015.3.1111/jszip.min.js")"></script>
+<script src="@Url.Content("~/Scripts/kendo/2015.3.1111/kendo.all.min.js")"></script>
+<script src="@Url.Content("~/Scripts/kendo/2015.3.1111/kendo.aspnetmvc.min.js")"></script>
+<script src="~/assets/js/jquery.easypiechart.min.js"></script>
+<script src="~/assets/js/jquery.sparkline.min.js"></script>
+<script src="~/assets/js/flot/jquery.flot.min.js"></script>
+<script src="~/assets/js/flot/jquery.flot.pie.min.js"></script>
+<script src="~/assets/js/flot/jquery.flot.resize.min.js"></script>
+<script src="~/assets/js/date-time/moment.min.js"></script>
+<script src="~/assets/js/date-time/jquery-dateFormat.min.js"></script>
+<script src="~/assets/js/jquery.autosize.min.js"></script>
+<script src="~/assets/js/jquery.inputlimiter.1.3.1.min.js"></script>
+<script src="~/assets/js/bootbox.min.js"></script>
+<script src="@Url.Content("~/Scripts/cultures/kendo.culture.en-GB.min.js")"></script>
+
+<script type="text/javascript">
+    //set the Kendo UI culture
+    kendo.culture('en-GB');
+</script>
+
+<script src="@Url.Content("~/Scripts/kendo.modernizr.custom.js")"></script>
+
+<style type="text/css">
+    .itemdiv.dialogdiv:before {
+        visibility: hidden !important;
+    }
+
+    #modal-task-chat .modal-body {
+        min-height: calc(100vh - 400px);
+        max-height: calc(100vh - 400px);
+        overflow-y: auto;
+    }
+</style>
+</head>
+
+<body class="no-skin rtl">
+<div id="navbar" class="navbar navbar-default">
+<script type="text/javascript">
+    try {
+        ace.settings.check('navbar', 'fixed');
+    } catch (e) {
+    }
+</script>
+
+<div class="navbar-container" id="navbar-container">
+<button type="button" class="navbar-toggle menu-toggler pull-right" id="menu-toggler">
+    <span class="sr-only">Toggle sidebar</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+</button>
+
+<div class="navbar-header pull-right">
+    <a href="#" class="navbar-brand">
+        <small>
+            <img src="~/assets/images/AlGhassanLogo.png" alt="Al-Ghassan Logo" width="20" height="20"/>
+            Al-Ghassan
+        </small>
+    </a>
+</div>
+
+<div class="navbar-buttons navbar-header pull-left" role="navigation">
+<ul class="nav ace-nav">
+@*@Html.Partial("StaffMessages")*@
+
+@Html.Partial("StaffNotifications")
+
+@Html.Partial("StaffTasks")
+
+<li class="light-blue">
+<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+    <i class="ace-icon fa fa-magic icon-animated-vertical"></i>
+    Themes
+    @*@(Session["themeName"] == null ? "Themes" : string.Format("{0} Theme", Session["themeName"]))*@
+</a>
+
+<ul class="dropdown-menu-left dropdown-navbar dropdown-menu dropdown-caret dropdown-close">
+<li class="dropdown-header">
+    <i class="ace-icon fa fa-magic"></i>
+    @Session["themeName"].ToString()
+</li>
+
+<li class="dropdown-content">
+<ul class="dropdown-menu dropdown-navbar">
+<li>
+    <a href="@Url.Action("Change", "Theme", new {theme = "black"})">
+        <div class="clearfix">
+            <span class="pull-left">
+                                                    Black
+                                                </span>
+            <span class="pull-right badge badge-light">
+                                                    <span class="tc-color" style="background-color: #0167cc"></span>
+                                                    <span class="tc-color" style="background-color: #4698e9"></span>
+                                                    <span class="tc-color" style="background-color: #272727"></span>
+                                                </span>
+        </div>
+    </a>
+</li>
+
+<li>
+    <a href="@Url.Action("Change", "Theme", new {theme = "blueOpal"})">
+        <div class="clearfix">
+            <span class="pull-left">
+                                                    Blue Opal
+                                                </span>
+            <span class="pull-right badge badge-light">
+                                                    <span class="tc-color" style="background-color: #076186"></span>
+                                                    <span class="tc-color" style="background-color: #7ed3f6"></span>
+                                                    <span class="tc-color" style="background-color: #94c0d2"></span>
+                                                </span>
+        </div>
+    </a>
+</li>
+
+<li>
+    <a href="@Url.Action("Change", "Theme", new {theme = "bootstrap"})">
+        <div class="clearfix">
+            <span class="pull-left">
+                                                    Bootstrap
+                                                </span>
+            <span class="pull-right badge badge-light">
+                                                    <span class="tc-color" style="background-color: #3276b1"></span>
+                                                    <span class="tc-color" style="background-color: #67afe9"></span>
+                                                    <span class="tc-color" style="background-color: #fff"></span>
+                                                </span>
+        </div>
+    </a>
+</li>
+
+<li>
+    <a href="@Url.Action("Change", "Theme", new {theme = "default"})">
+        <div class="clearfix">
+            <span class="pull-left">
+                                                    Default
+                                                </span>
+            <span class="pull-right badge badge-light">
+                                                    <span class="tc-color" style="background-color: #ef6f1c"></span>
+                                                    <span class="tc-color" style="background-color: #e24b17"></span>
+                                                    <span class="tc-color" style="background-color: #5a4b43"></span>
+                                                </span>
+        </div>
+    </a>
+</li>
+
+<li>
+    <a href="@Url.Action("Change", "Theme", new {theme = "fiori"})">
+        <div class="clearfix">
+            <span class="pull-left">
+                                                    Fiori
+                                                </span>
+            <span class="pull-right badge badge-light">
+                                                    <span class="tc-color" style="background-color: #007cc0"></span>
+                                                    <span class="tc-color" style="background-color: #e6f2f9"></span>
+                                                    <span class="tc-color" style="background-color: #f0f0f0"></span>
+                                                </span>
+        </div>
+    </a>
+</li>
+
+<li>
+    <a href="@Url.Action("Change", "Theme", new {theme = "flat"})">
+        <div class="clearfix">
+            <span class="pull-left">
+                                                    Flat
+                                                </span>
+            <span class="pull-right badge badge-light">
+                                                    <span class="tc-color" style="background-color: #363940"></span>
+                                                    <span class="tc-color" style="background-color: #2eb3a6"></span>
+                                                    <span class="tc-color" style="background-color: #fff"></span>
+                                                </span>
+        </div>
+    </a>
+</li>
+
+<li>
+    <a href="@Url.Action("Change", "Theme", new {theme = "highContrast"})">
+        <div class="clearfix">
+            <span class="pull-left">
+                                                    High Contrast
+                                                </span>
+            <span class="pull-right badge badge-light">
+                                                    <span class="tc-color" style="background-color: #b11e9c"></span>
+                                                    <span class="tc-color" style="background-color: #880275"></span>
+                                                    <span class="tc-color" style="background-color: #1b141a"></span>
+                                                </span>
+        </div>
+    </a>
+</li>
+
+<li>
+    <a href="@Url.Action("Change", "Theme", new {theme = "material"})">
+        <div class="clearfix">
+            <span class="pull-left">
+                                                    Material
+                                                </span>
+            <span class="pull-right badge badge-light">
+                                                    <span class="tc-color" style="background-color: #3f51b5"></span>
+                                                    <span class="tc-color" style="background-color: #283593"></span>
+                                                    <span class="tc-color" style="background-color: #fff"></span>
+                                                </span>
+        </div>
+    </a>
+</li>
+
+<li>
+    <a href="@Url.Action("Change", "Theme", new {theme = "materialBlack"})">
+        <div class="clearfix">
+            <span class="pull-left">
+                                                    Material Black
+                                                </span>
+            <span class="pull-right badge badge-light">
+                                                    <span class="tc-color" style="background-color: #3f51b5"></span>
+                                                    <span class="tc-color" style="background-color: #1c1c1c"></span>
+                                                    <span class="tc-color" style="background-color: #4d4d4d"></span>
+                                                </span>
+        </div>
+    </a>
+</li>
+
+<li>
+    <a href="@Url.Action("Change", "Theme", new {theme = "metro"})">
+        <div class="clearfix">
+            <span class="pull-left">
+                                                    Metro
+                                                </span>
+            <span class="pull-right badge badge-light">
+                                                    <span class="tc-color" style="background-color: #8ebc00"></span>
+                                                    <span class="tc-color" style="background-color: #787878"></span>
+                                                    <span class="tc-color" style="background-color: #fff"></span>
+                                                </span>
+        </div>
+    </a>
+</li>
+
+<li>
+    <a href="@Url.Action("Change", "Theme", new {theme = "metroBlack"})">
+        <div class="clearfix">
+            <span class="pull-left">
+                                                    Metro Black
+                                                </span>
+            <span class="pull-right badge badge-light">
+                                                    <span class="tc-color" style="background-color: #00aba9"></span>
+                                                    <span class="tc-color" style="background-color: #0e0e0e"></span>
+                                                    <span class="tc-color" style="background-color: #565656"></span>
+                                                </span>
+        </div>
+    </a>
+</li>
+
+<li>
+    <a href="@Url.Action("Change", "Theme", new {theme = "moonlight"})">
+        <div class="clearfix">
+            <span class="pull-left">
+                                                    Moonlight
+                                                </span>
+            <span class="pull-right badge badge-light">
+                                                    <span class="tc-color" style="background-color: #ee9f05"></span>
+                                                    <span class="tc-color" style="background-color: #40444f"></span>
+                                                    <span class="tc-color" style="background-color: #212a33"></span>
+                                                </span>
+        </div>
+    </a>
+</li>
+
+<li>
+    <a href="@Url.Action("Change", "Theme", new {theme = "nova"})">
+        <div class="clearfix">
+            <span class="pull-left">
+                                                    Nova
+                                                </span>
+            <span class="pull-right badge badge-light">
+                                                    <span class="tc-color" style="background-color: #ff4350"></span>
+                                                    <span class="tc-color" style="background-color: #00acc1"></span>
+                                                    <span class="tc-color" style="background-color: #303553"></span>
+                                                </span>
+        </div>
+    </a>
+</li>
+
+<li>
+    <a href="@Url.Action("Change", "Theme", new {theme = "office365"})">
+        <div class="clearfix">
+            <span class="pull-left">
+                                                    Office 365
+                                                </span>
+            <span class="pull-right badge badge-light">
+                                                    <span class="tc-color" style="background-color: #0072c6"></span>
+                                                    <span class="tc-color" style="background-color: #cde6f7"></span>
+                                                    <span class="tc-color" style="background-color: #fff"></span>
+                                                </span>
+        </div>
+    </a>
+</li>
+
+<li>
+    <a href="@Url.Action("Change", "Theme", new {theme = "silver"})">
+        <div class="clearfix">
+            <span class="pull-left">
+                                                    Silver
+                                                </span>
+            <span class="pull-right badge badge-light">
+                                                    <span class="tc-color" style="background-color: #298bc8"></span>
+                                                    <span class="tc-color" style="background-color: #515967"></span>
+                                                    <span class="tc-color" style="background-color: #eaeaec"></span>
+                                                </span>
+        </div>
+    </a>
+</li>
+
+<li>
+    <a href="@Url.Action("Change", "Theme", new {theme = "uniform"})">
+        <div class="clearfix">
+            <span class="pull-left">
+                                                    Uniform
+                                                </span>
+            <span class="pull-right badge badge-light">
+                                                    <span class="tc-color" style="background-color: #666"></span>
+                                                    <span class="tc-color" style="background-color: #ccc"></span>
+                                                    <span class="tc-color" style="background-color: #fff"></span>
+                                                </span>
+        </div>
+    </a>
+</li>
+
+</ul>
+</li>
+</ul>
+</li>
+
+<li class="light-blue">
+    <a data-toggle="dropdown" href="#" class="dropdown-toggle">
+        <img class="nav-user-photo" src="~/assets/avatars/avatar2.png" alt="User Icon"/>
+        <span class="user-info">
+                                <small>أهلاً,</small>
+                                @Html.Encode(User.Identity.Name.UserName())
+                            </span>
+
+        <i class="ace-icon fa fa-caret-down"></i>
+    </a>
+
+    <ul class="user-menu dropdown-menu-left dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+        <li>
+            <a href="@Url.Action("Index", "MyProfile")">
+                <i class="ace-icon fa fa-user"></i>
+                ملفي الشخصي
+            </a>
+        </li>
+        <li>
+            <a href="@Url.Action("Index", "DailyWork")">
+                <i class="ace-icon fa fa-dashboard"></i>
+                تقرير العمل اليومي
+            </a>
+        </li>
+        <li class="divider"></li>
+        <li>
+            <a href="@Url.Action("ChangePassword", "Login")">
+                <i class="ace-icon fa fa-sign-in"></i>
+                تغيير كلمة المرور
+            </a>
+        </li>
+        <li>
+            <a href="@Url.Action("Logout", "Login")">
+                <i class="ace-icon fa fa-power-off"></i>
+                خروج
+            </a>
+        </li>
+    </ul>
+</li>
+    <li>  @*//nuha*@
+        <div class="navbar-header pull-right">
+            <a href="#" class="navbar-brand">
+                <small>
+                    <img src="~/assets/images/RamallahMun.png" alt="Al-Ghassan Logo" width="40" height="30" />
+                    @*Al-Ghassan*@
+                </small>
+            </a>
+        </div>
+    </li>
+
+</ul>
+</div>
+</div>
+</div>
+
+<div class="main-container" id="main-container">
+    <script type="text/javascript">
+        try {
+            ace.settings.check('main-container', 'fixed');
+        } catch (e) {
+        }
+    </script>
+
+    <div id="sidebar" class="sidebar responsive">
+        <script type="text/javascript">
+            try {
+                ace.settings.check('sidebar', 'fixed');
+            } catch (e) {
+            }
+        </script>
+
+        <ul class="nav nav-list">
+            @*@Html.Partial("Menu/BT")
+            @Html.Partial("Menu/Nuha")*@
+            
+            @Html.Partial("Menu/GetMenu")
+        </ul>
+
+        <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
+            <i class="ace-icon fa fa-angle-double-right" data-icon1="ace-icon fa fa-angle-double-right" data-icon2="ace-icon fa fa-angle-double-left"></i>
+        </div>
+
+        <script type="text/javascript">
+            try {
+                ace.settings.check('sidebar', 'collapsed');
+            } catch (e) {
+            }
+        </script>
+    </div>
+
+    <div class="main-content">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <!-- #section:basics/content.searchbox -->
+            <div class="nav-search" id="nav-search" style="right: 22px;">
+                <form class="form-search">
+                    <span class="input-icon">
+                            <input type="text" placeholder="بحث ..." class="nav-search-input" style="width: 300px;" id="searchBox" autocomplete="off">
+                            <i class="ace-icon fa fa-search nav-search-icon"></i>
+                        </span>
+                </form>
+
+               
+            </div><!-- /.nav-search -->
+            <!-- /section:basics/content.searchbox -->
+            @if (Session["IsBirthday"] != null && (bool)Session["IsBirthday"]==true)
+            {
+                <div style="text-align:center;color:red;font-weight:900" id="birthday">
+                    كل عام وانت بخير تتمنى لك بلدية رام الله دوام الصحة والسعادة
+                </div>
+            }
+            
+        </div>
+        <div class="page-content">
+            <div class="ace-settings-container" id="ace-settings-container">
+                <div class="btn btn-app btn-xs btn-warning ace-settings-btn" id="ace-settings-btn">
+                    <i class="ace-icon fa fa-cog bigger-150"></i>
+                </div>
+
+                <div class="ace-settings-box clearfix" id="ace-settings-box">
+                    <div class="pull-left width-50">
+                        <div class="ace-settings-item">
+                            <div class="pull-left">
+                                <select id="skin-colorpicker" class="hide">
+                                    <option data-skin="no-skin" value="#438EB9">#438EB9</option>
+                                    <option data-skin="skin-1" value="#222A2D">#222A2D</option>
+                                    <option data-skin="skin-2" value="#C6487E">#C6487E</option>
+                                    <option data-skin="skin-3" value="#D0D0D0">#D0D0D0</option>
+                                </select>
+                            </div>
+                            <span>&nbsp; Choose Skin</span>
+                        </div>
+
+                        <div class="ace-settings-item">
+                            <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-navbar"/>
+                            <label class="lbl" for="ace-settings-navbar"> Fixed Navbar</label>
+                        </div>
+
+                        <div class="ace-settings-item">
+                            <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-sidebar"/>
+                            <label class="lbl" for="ace-settings-sidebar"> Fixed Sidebar</label>
+                        </div>
+
+                        <div class="ace-settings-item">
+                            <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-breadcrumbs"/>
+                            <label class="lbl" for="ace-settings-breadcrumbs"> Fixed Breadcrumbs</label>
+                        </div>
+
+                        <div class="ace-settings-item">
+                            <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-rtl"/>
+                            <label class="lbl" for="ace-settings-rtl"> Right To Left (rtl)</label>
+                        </div>
+
+                        <div class="ace-settings-item">
+                            <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-add-container"/>
+                            <label class="lbl" for="ace-settings-add-container">
+                                Inside
+                                <b>.container</b>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="pull-left width-50">
+                        <div class="ace-settings-item">
+                            <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-hover"/>
+                            <label class="lbl" for="ace-settings-hover"> Submenu on Hover</label>
+                        </div>
+
+                        <div class="ace-settings-item">
+                            <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-compact"/>
+                            <label class="lbl" for="ace-settings-compact"> Compact Sidebar</label>
+                        </div>
+
+                        <div class="ace-settings-item">
+                            <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-highlight"/>
+                            <label class="lbl" for="ace-settings-highlight"> Alt. Active Item</label>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-header">
+                <h1>
+                    @Html.Raw(ViewBag.PageTitle)
+                    @{
+                        if (!string.IsNullOrEmpty(ViewBag.PageTitleDesc))
+                        {
+                            <small>
+                                <i class="ace-icon fa fa-angle-double-left"></i>
+                                @Html.Raw(ViewBag.PageTitleDesc)
+                            </small>
+                        }
+                    }
+                </h1>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12" id="pageContentDiv">
+                    <!-- PAGE CONTENT BEGINS -->
+                    @Html.Partial("ChatWindow")
+
+                    @RenderBody()
+                    <!-- PAGE CONTENT ENDS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer></footer>
+
+    <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+        <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
+    </a>
+</div>
+
+<!--[if !IE]> -->
+    <script type="text/javascript">
+        //window.jQuery || document.write("<script src='~/assets/js/jquery.min.js'>" + "<" + "/script>");
+    
+    </script>
+<!--<![endif]-->
+<!--[if IE]>
+    <script type="text/javascript">
+        window.jQuery || document.write("<script src='~/assets/js/jquery1x.min.js'>" + "<" + "/script>");
+    </script>
+<![endif]-->
+
+<script type="text/javascript">
+    //if ('ontouchstart' in document.documentElement) document.write("<script src='~/assets/js/jquery.mobile.custom.min.js'>" + "<" + "/script>");//
+    
+</script>
+
+<!-- ace scripts -->
+    <script src="~/assets/js/jquery.hotkeys.min.js"></script>
+<script src="~/assets/js/bootstrap-wysiwyg.min.js"></script>
+<script src="~/assets/js/ace-elements.min.js"></script>
+<script src="~/assets/js/ace.min.js"></script>
+@*<script src="~/Scripts/jquery-1.6.4.min.js"></script>*@
+<script src="~/Scripts/jquery.signalR-2.2.0.min.js"></script>
+<script src="~/signalr/hubs"></script>
+@*<script src="~/signalr/hubs"></script>*@
+
+@Html.Partial("MessagesScript")
+<script src="~/assets/js/jqGrid/jquery.jqGrid.min.js"></script>
+<script src="~/assets/js/jqGrid/i18n/grid.locale-ar.js"></script>
+<script src="~/assets/js/select2.min.js"></script>
+<script src="~/assets/js/BTScript.js"></script>
+<script src="~/assets/js/ProjectScript.js"></script>
+<script src="~/assets/js/jquery.contextmenu.js"></script>
+
+@RenderSection("scripts", required: false)
+</body>
+</html>
+<script>
+    var CAN_DELETE = "Y";
+    var CAN_EDIT = "Y";
+    var CAN_ADD = "Y";
+    var gridsArr = [];
+    var gridNamesArr = [];
+    var ViewID;
+    var path;
+    var title
+    $(document).ready(function () {
+        path = window.location.pathname;
+        ViewID = parseFloat($("a[href='" + path + "']").attr('id'));
+        title = jQuery(this).attr('title');
+     
+        $(document.body).on('keyup', '.ForNavigationClass table tr', function (event) {
+
+            var obj = $(this).parent().parent().parent().parent().attr("id")
+            var grid = $("#" + obj).data("kendoGrid");
+
+            grid.cancelRow();
+            grid.closeCell();
+            $("#" + obj).find(".RemoveButton").remove();
+            $("#" + obj).find(".EditButton").remove();
+            $("#" + obj).find(".kTbBtnCss").remove();
+
+
+
+        });
+        var searchBox = '#searchBox';
+
+        $(searchBox).bs_typeahead({
+            source: BT.menu.getSearchTearms(),
+            updater: function (item) {
+                $(searchBox).focus();
+                return item;
+            }
+        });
+
+        $(searchBox).keypress(function (e) {
+            if (e.which == 13) {
+                var result = BT.menu.searchMenu(searchBox);
+
+                if (!BT.isNullOrEmpty(result)) {
+                    window.location = $(result).attr("href");
+                    return false;
+                }
+
+                e.preventDefault();
+                return false;
+            }
+        });
+
+
+        $(document.body).on('click', '.ForNavigationClass table tr', function (event) {
+
+            var obj = $(this).parent().parent().parent().parent().attr("id")
+            var grid = $("#" + obj).data("kendoGrid");
+            grid.cancelRow();
+            grid.closeCell();
+            $("#" + obj).find(".RemoveButton").remove();
+            $("#" + obj).find(".EditButton").remove();
+            $("#" + obj).find(".kTbBtnCss").remove();
+
+
+
+        });
+       
+      
+        
+        //if (title != "الرئيسية" && !BT.isNullOrEmpty(ViewID) && parseFloat(ViewID)>0 )
+     
+            @*$.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetPermition", "Home")',
+                traditional: true,
+                dataType: 'json',
+                data:{ViewID:ViewID},
+                beforeSend: function () {
+                    $("#LoadingImage").show();
+                },
+            
+            }).done(function (data) {
+                $(".k-grid").each(function () {
+                    var grid = $(this);
+                    gridNamesArr.push(grid);
+                    var grid2 = grid.data("kendoGrid");
+                    gridsArr.push(grid2);
+                    if (data.IsDone == true)
+                    {
+                 
+                   
+                        if (data.CAN_DELETE == "N")
+                        {
+                            CAN_DELETE = data.CAN_DELETE;
+                            grid.data("kendoGrid").bind("dataBound", databoundForallGrid);
+                            //grid.data("kendoGrid").bind("edit", EditGrid);
+                            //grid.addClass("ForNavigationClass");
+                       
+                            grid.find('.k-grid-Delete').remove();
+                            grid.find('.RemoveButton').remove();
+                        }
+
+                        if (data.CAN_EDIT == "N")
+                        {
+                            CAN_EDIT = data.CAN_EDIT;
+                            grid.data("kendoGrid").bind("dataBound", databoundForallGrid);
+                       
+                            grid.data("kendoGrid").bind("edit", EditGrid);
+                            // grid.addClass("ForNavigationClass");
+                            grid.find('.k-grid-edit').remove();
+                            grid.find('.EditButton').remove();
+                        
+
+                        }
+
+                        if (data.CAN_ADD == "N")
+                        {
+                            //grid.addClass("ForNavigationClass");
+                            grid.data("kendoGrid").bind("edit", EditGrid);
+                            grid.data("kendoGrid").bind("dataBound", databoundForallGrid);
+                            CAN_ADD = data.CAN_ADD;
+                            grid.find('.k-grid-add').remove();
+                            //grid.find('.k-add').parent().addClass('disabled');
+                            grid.find(".k-grid-top .k-add").parent().remove()
+
+                        }
+                        if (CAN_DELETE == "N" && CAN_EDIT == "N" && CAN_ADD == "N")
+                        {
+                            grid.data("kendoGrid").bind("dataBound", databoundForallGrid);
+                            grid.data("kendoGrid").bind("edit", EditGrid);
+
+                        }
+                    }
+                    else
+                        window.location.href = "@Url.Action("index","home")";
+                });
+             
+              
+                $("#LoadingImage").hide();
+
+
+            });*@
+               
+
+    })
+       
+
+    function databoundForallGrid(e) {
+        for (i = 0; i < gridNamesArr.length; i++) {
+            var gr = gridNamesArr[i];
+            if (CAN_DELETE == "N") {
+                gr.find('.k-grid-Delete').remove();
+                gr.find('.RemoveButton').remove();
+
+            }
+            if (CAN_EDIT == "N") {
+                gr.find('.k-grid-edit').remove();
+                gr.find('.EditButton').remove();
+
+
+            }
+
+        }
+    }
+
+
+    function EditGrid(e) {
+        for (i = 0; i < gridsArr.length; i++) {
+            var gr = gridsArr[i];
+            if (e.model.isNew()) {
+                if (CAN_ADD == "N") {
+                    gr.cancelRow();
+                    gr.closeCell();
+
+
+                }
+
+            }
+            else {
+                if (CAN_EDIT == "N") {
+
+                    gr.cancelRow();
+                    gr.closeCell();
+
+                }
+
+            }
+        }
+
+
+        for (i = 0; i < gridNamesArr.length; i++) {
+            var gr = gridNamesArr[i];
+            if (CAN_DELETE == "N") {
+                gr.find('.k-grid-Delete').remove();
+                gr.find('.RemoveButton').remove();
+
+
+            }
+            if (CAN_EDIT == "N") {
+                gr.find('.k-grid-edit').remove();
+                gr.find('.EditButton').remove();
+
+
+            }
+            if (CAN_ADD == "N") {
+                gr.find('.k-grid-add').remove();
+                gr.find(".k-grid-top .k-add").parent().remove()
+
+            }
+        }
+
+    }
+
+    function high() {
+        alert("high")
+    }
+           
+    function openWindowWithPost(url, data) {
+        var form = document.createElement("form");
+        form.target = "_blank";
+        form.method = "POST";
+        form.action = url;
+        form.style.display = "none";
+
+        for (var key in data) {
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = key;
+            input.value = data[key];
+            form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
+
+
+      
+ 
+
+
+
+</script>

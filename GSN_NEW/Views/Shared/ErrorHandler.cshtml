@@ -1,0 +1,200 @@
+﻿<div class="k-rtl">
+    @(Html.Kendo().Window()
+                  .Name("errorWindow").HtmlAttributes(new { @style = "z-index:9999" })
+            //.Width(600)
+          .Title("خطأ")
+          .Visible(false)
+          .Modal(true)
+          .Draggable()
+          .Resizable()
+          )
+
+    @*@(Html.Kendo().Window()
+                  .Name("SuccessWindow").HtmlAttributes(new { @style = "z-index:9999" })
+            //.Width(600)
+          .Title("نجاح")
+          .Visible(false)
+          .Modal(true)
+          .Draggable()
+          .Resizable()
+          
+    )*@
+
+    @(
+ Html.Kendo().Window()
+  .Name("SuccessWindow").HtmlAttributes(new { @style = "z-index:9999" })
+    .Title("نجاح ")
+        .Width(200)
+    .Visible(false)
+    .Scrollable(false)
+    .Modal(true)
+    .Draggable()
+    .Resizable()
+    .Content(Html.Kendo().Splitter()
+                     .Name("SuccessWindowVerticalSplitter")
+                 .HtmlAttributes(new { @style = "height: 99.5%" })
+                 .Orientation(SplitterOrientation.Vertical)
+                 .Panes(verticalPanes =>
+                 {
+                     verticalPanes.Add()
+                       .Size("35px")
+                             .Resizable(false)
+                                    .Collapsible(false)
+                                      .Content(@<div class="pane-content sucsessdiv">
+                                        <div style="text-align:center">
+                                         تم الحفظ بنجاح
+                                         </div>
+                                                   <div >
+                                                       <button style="float:left" class="k-button " id="SuccessWindowCloseButton">
+                                                           <span></span>
+                                                           موافق
+                                                       </button>
+                                          </div>
+                                                    </div>);
+                     //
+                     @*verticalPanes.Add()
+                       .Size("35px")
+                             .Resizable(false)
+                                    .Collapsible(false)
+                                      .Content(@<div class="pane-content sucsessdiv">
+                                             <button class="k-button pull-right" id="SuccessWindowCloseButton">
+                                                                         <span class="k-icon k-i-close"></span>
+                                                                         موافق
+                                                                     </button>
+                                                    </div>);*@
+
+                 }).ToHtmlString())
+    )
+</div>
+
+<script type="text/javascript" language="javascript" >
+    $(window).load(function ()
+    {
+//
+        closeBtn = $('#SuccessWindowCloseButton');
+
+        closeBtn.off('click').on('click', function (ec) {
+            $("#SuccessWindow").data("kendoWindow").close();
+        });
+        //
+        var lastRequestType;
+        $("#SuccessWindow").prev().css('background-color', '#47b247').css('color', '#FDFDFD');
+        function onErrorHandler(e) {
+            var ew = $('#errorWindow'),
+                    msg = '',
+                    grid = e.eThis;
+
+            var ev = e.event;
+
+            ew.prev().css('background-color', '#F77878').css('color', '#FDFDFD');
+
+            if (e.event.status === 'customerror') {
+                if ($.type(e.event.errors) === 'string') {
+                    msg += '<p>' + e.event.errors + '</p>';
+                } else {
+                    $.each(e.event.errors, function (ix, vx) {
+                        if ('errors' in vx) {
+                            $.each(vx.errors, function () {
+                                msg += '<p>' + this + '</p>';
+                            });
+                        }
+                    });
+                }
+            }
+            else {
+                msg += '<p>Internal server error</p>';
+            }
+          
+            ew.html(msg);
+            if (lastRequestType === 'destroy') grid.cancelChanges();
+            else if (lastRequestType === 'update' || lastRequestType === 'create') {
+                var grid2 = $(e.kGrid).data("kendoGrid");
+                //var gridName = eThis.options.table.context.id
+
+                grid2.one("dataBinding", function (e) {
+                    e.preventDefault();  // cancel grid rebind if error occurs//
+
+                });
+
+            }
+
+            ew.data('kendoWindow').center().open();
+        }
+
+        $('.k-grid').each(function (i, v)
+        {
+            BT.Grid.kOnRequestStart(v, function(e) { lastRequestType = e.event.type; });
+
+            BT.Grid.kOnDetailExpand(v, function onDetailExpand(e) {
+                var parentGrid = e.event.masterRow.closest('.k-grid');
+
+                //var grandParent = parentGrid.parent();
+
+                //if (grandParent.length && grandParent.hasClass('row k-rtl') && grandParent.parent().attr('id') === 'pageContentDiv')
+                //{
+                //    $(window).off('resize');
+                //    if ($('body').hasClass('noScroll'))
+                //    {
+                //        $('body').removeClass('noScroll');
+                //    }
+                //   // $('body').css('overflow', 'auto !important');
+                //}
+
+                var parentGridContent = parentGrid.find('.k-grid-content').first(),
+                    parentGridContentHeight = parentGridContent.height(),
+                    masterRowHeight = e.event.masterRow.height(),
+                    detailRow = e.event.detailRow,
+                    detailCell = detailRow.find('.k-detail-cell'),
+                    childGrid = e.event.detailRow.find('.k-grid').first(),
+                    detailRowHeight = detailRow.height(),
+                    scrollbarHeight = parentGridContent.get(0).offsetHeight - parentGridContent.get(0).clientHeight,
+                    detailCellHeight = detailCell.height(),
+                    padding = detailRowHeight - detailCellHeight,
+                    //dHeight = parentGridContentHeight - masterRowHeight - padding - scrollbarHeight;
+                    dHeight = parentGridContentHeight - masterRowHeight - padding - scrollbarHeight;
+
+                
+
+                //var x;
+
+                if (!detailRow.hasClass('autoResized')) {
+                    //grandParent.height(parentGridContent.height() + dHeight);
+                    //BT.Grid.kResize(grandParent);
+
+                    detailCell.height(dHeight);
+
+                    BT.Grid.kAddFilterAll(childGrid);
+
+                    BT.Grid.kHideToolbars(childGrid);
+
+                    BT.Grid.kOnError(childGrid, onErrorHandler);
+
+                    //BT.Grid.kAddMenu(childGrid);
+
+                    BT.Grid.kAddKeyboardNav(childGrid);
+
+                    BT.Grid.kOnSelect(childGrid, function (ge)
+                    {
+                        BT.Grid.kAddToolbarButtons(childGrid);
+                    });
+
+                    detailRow.addClass('autoResized');
+
+                    BT.Grid.kOnDataBound(childGrid, function () { BT.Grid.kResize(childGrid.parent()); });
+                }
+
+                BT.Grid.kOnDetailExpand(childGrid, onDetailExpand);
+            });
+
+            BT.Grid.kOnError(v, onErrorHandler);
+
+            //BT.Grid.kAddMenu(v);
+
+            BT.Grid.kOnSelect(v, function(ge) {
+                BT.Grid.kAddToolbarButtons(v);
+            });
+
+            BT.Grid.kAddKeyboardNav(v);
+        });
+    });
+</script>

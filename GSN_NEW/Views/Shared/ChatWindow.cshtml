@@ -1,0 +1,85 @@
+﻿<div class="k-rtl">
+    @(
+ Html.Kendo().Window()
+        .Name("modal-task-chat")
+    .Width(700)
+    .Height(500)
+    .Title("المحادثات")
+    .Visible(false)
+    .Scrollable(false)
+    .Modal(true)
+    .Draggable()
+    .Resizable()
+        //.Events(e => e.Resize("onModalTaskChatResize").Activate("onModalTaskChatActivate"))
+    .Content(Html.Kendo().Splitter()
+    .Name("modalTaskChatVerticalSplitter")
+    .HtmlAttributes(new { @style = "height: 100%" })
+    .Orientation(SplitterOrientation.Vertical)
+    .Panes(verticalPanes =>
+    {
+        verticalPanes.Add()
+           .Scrollable(false)
+           .Collapsible(false)
+           .HtmlAttributes(new { id = "modalTaskChatPane" })
+           .Content(@<div class="k-rtl" style="height: 100%">
+            <div class="modal-content" style="height: 100%">
+                <div class="modal-header no-padding">
+                    <div class="k-rtl row" style="margin: 10px">
+                        @(Html.Kendo().MultiSelect()
+                      .Name("sendToStaffMs")
+                      .DataTextField("StaffName")
+                      .DataValueField("StaffId")
+                      .Placeholder("Select Staff...")
+                      .AutoBind(false)
+                      .AutoClose(false)
+                      .DataSource(source => source
+                      .Custom()
+                      .Group(g => g.Add("Group", typeof(string)))
+                      .Transport(transport => transport
+                        .Read(read =>
+                        {
+                            read.Action("GetChatStaff", "Home")
+                                .Data("onChatStaffAdditionalData");
+                        }))
+                      .ServerFiltering(false))
+                        )
+                    </div>
+                </div>
+
+                <div class="modal-body no-padding">
+                    <div class="dialogs">
+
+                    </div>
+                </div>
+
+                <div class="modal-footer no-margin-top">
+                    <div class="input-group">
+                        <textarea name="taskChatMsg" id="taskChatMsg" placeholder="أدخل نص الرسالة هنا..." class="autosize-transition form-control limited" maxlength="500" style="max-height: 200px"></textarea>
+                        <span class="input-group-btn">
+                            <button class="btn btn-sm btn-info no-radius" type="button" id="taskChatSendBtn" style="margin-right: 5px">
+                                <i class="ace-icon fa fa-share"></i>
+                                إرسال
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>);
+    }).ToHtmlString())
+    )
+</div>
+
+<script type="text/javascript" language="javascript">
+    //function onModalTaskChatResize(e)
+    //{
+    //    //$('#vSplitter').trigger('resize');
+    //    //BT.Grid.kResize('#subTasksPane');
+    //}
+
+    //function onModalTaskChatActivate(e)
+    //{
+    //    var w = $('#modal-task-chat').data('kendoWindow');
+    //    w.maximize();
+    //    w.restore();
+    //}
+</script>

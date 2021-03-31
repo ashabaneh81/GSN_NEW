@@ -1,0 +1,46 @@
+﻿/*.k-grid-content {
+    overflow-y: auto;
+}
+
+.k-grid-header-wrap {
+    width: 102%;
+}
+
+.k-grid-footer-wrap {
+    width: 102%;
+}*/
+
+.k-dropdown-wrap {
+    padding-right: 2px !important;
+}
+
+/* reset everything to the default box model */
+
+.k-pane *, .k-pane :before, .k-pane :after {
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+}
+
+/* set a border-box model only to elements that need it */
+
+/*.form-control, /* if this class is applied to a Kendo UI widget, its layout may change */
+.k-pane .container,
+.k-pane .container-fluid,
+.k-pane .row,
+.k-pane .col-xs-1, .k-pane .col-sm-1, .k-pane .col-md-1, .k-pane .col-lg-1,
+.k-pane .col-xs-2, .k-pane .col-sm-2, .k-pane .col-md-2, .k-pane .col-lg-2,
+.k-pane .col-xs-3, .k-pane .col-sm-3, .k-pane .col-md-3, .k-pane .col-lg-3,
+.k-pane .col-xs-4, .k-pane .col-sm-4, .k-pane .col-md-4, .k-pane .col-lg-4,
+.k-pane .col-xs-5, .k-pane .col-sm-5, .k-pane .col-md-5, .k-pane .col-lg-5,
+.k-pane .col-xs-6, .k-pane .col-sm-6, .k-pane .col-md-6, .k-pane .col-lg-6,
+.k-pane .col-xs-7, .k-pane .col-sm-7, .k-pane .col-md-7, .k-pane .col-lg-7,
+.k-pane .col-xs-8, .k-pane .col-sm-8, .k-pane .col-md-8, .k-pane .col-lg-8,
+.k-pane .col-xs-9, .k-pane .col-sm-9, .k-pane .col-md-9, .k-pane .col-lg-9,
+.k-pane .col-xs-10, .k-pane .col-sm-10, .k-pane .col-md-10, .k-pane .col-lg-10,
+.k-pane .col-xs-11, .k-pane .col-sm-11, .k-pane .col-md-11, .k-pane .col-lg-11,
+.k-pane .col-xs-12, .k-pane .col-sm-12, .k-pane .col-md-12, .k-pane .col-lg-12 {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}

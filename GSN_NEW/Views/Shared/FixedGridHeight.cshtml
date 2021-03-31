@@ -1,0 +1,10 @@
+﻿<script type="text/javascript" language="javascript">
+    $(window).load(function ()
+    {
+        $(window).off('resize').on('resize', function (e)
+        {
+            if (e.target === window)
+                BT.Grid.kResize('#pageContentDiv');
+        }).trigger('resize');
+    });
+</script>

@@ -1,0 +1,109 @@
+﻿
+@using ErpDal
+@using GSN_NEW.Helpers
+@using GSN_NEW.Models
+@*@model IEnumerable<GSN_ERP.Models.MenuModel>*@
+@{
+    List<MenuModel> menu = MenuStaff.GetMenuStaff(User.Identity.Name.UserCode());
+}
+@Html.NavigationItem("Home", "menu-icon fa fa-home", "الرئيسية", null)
+
+@foreach (var item in menu.GroupBy(c => c.NAME))
+{
+    <li @( item.First().listSubController.Any(c => c.CONTROLLER == ViewContext.RouteData.Values["controller"].ToString()) || item.First().listSubGroupController.Any(c => c.listSubGroupController.Any(XX => XX.CONTROLLER == ViewContext.RouteData.Values["controller"].ToString())) ? Html.Raw("class= \"active open hsub\"") : @Html.Raw("class= \"open\""))>
+
+        <a href="#" class="dropdown-toggle">
+            <i class="menu-icon fa @item.First().Icon"></i>
+            <span class="menu-text"> @item.Key </span>
+            <b class="arrow fa fa-angle-down"></b>
+        </a>
+        <b class="arrow"></b>
+        <ul class="submenu">
+
+            @if (item.First().listSubController != null)
+            {
+                foreach (var item1 in item.First().listSubController.OrderBy(o => o.ID))
+                {
+                    if (item1.METHOD_NAME == null)
+                    {
+                        <li @(ViewContext.RouteData.Values["controller"].ToString() == item1.CONTROLLER ? Html.Raw("class= \"active open hsub\"") : @Html.Raw("class= \"open\""))>
+                            @*@Html.NavigationItem(item1.CONTROLLER, "menu-icon fa fa-caret-left  "+item1.ID+"", item1.NAME )*@
+                            <a class="LinkUrl" id="@item1.ID" href="@Url.Action("index",item1.CONTROLLER)">
+                                <i class="menu-icon fa fa-caret-left"></i>
+                                @item1.NAME
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+
+                        <li @(ViewContext.RouteData.Values["controller"].ToString() == item1.CONTROLLER ? Html.Raw("class= \"active open hsub\"") : @Html.Raw("class= \"open\""))>
+                            @*@Html.NavigationItemAction(item1.CONTROLLER, item1.METHOD_NAME, "menu-icon fa fa-caret-left LinkUrl " + item1.ID + "", item1.NAME )*@
+
+                            <a class="LinkUrl" id="@item1.ID" href="@Url.Action(item1.METHOD_NAME,item1.CONTROLLER)">
+                                <i class="menu-icon fa fa-caret-left"></i>
+                                @item1.NAME
+                            </a>
+
+                        </li>
+                    }
+
+
+                }
+            }
+            @if (item.First().listSubGroupController.Count() > 0)
+            {
+
+                foreach (var item2 in item.First().listSubGroupController.OrderBy(o => o.ID))
+                {
+                    <li @( item2.listSubGroupController.Any(c => c.CONTROLLER == ViewContext.RouteData.Values["controller"].ToString()) ? Html.Raw("class= \"active open hsub\"") : @Html.Raw("class= \"open\""))>
+                        <a href="#" class="dropdown-toggle">
+                            <i class="menu-icon fa fa-list"></i>
+                            <span class="menu-text"> @item2.NAME </span>
+                            <b class="arrow fa fa-angle-down"></b>
+                        </a>
+
+                        <b class="arrow"></b>
+
+                        <ul class="submenu">
+                            @foreach (var item3 in item2.listSubGroupController.OrderBy(o => o.ID))
+                            {
+                                if (item3.METHOD_NAME == null)
+                                {
+                                    <li @(ViewContext.RouteData.Values["controller"].ToString() == item3.CONTROLLER ? Html.Raw("class= \"active open hsub\"") : @Html.Raw("class= \"open\""))>
+                                        @*@Html.NavigationItem(item3.CONTROLLER, "menu-icon fa fa-caret-left LinkUrl " + item3.ID + "", item3.NAME)*@
+
+                                        <a class="LinkUrl" id="@item3.ID" href="@Url.Action("index",item3.CONTROLLER)">
+                                            <i class="menu-icon fa fa-caret-left"></i>
+                                            @item3.NAME
+                                        </a>
+
+                                    </li>
+                                }
+                                else
+                                {
+
+                                    <li @(ViewContext.RouteData.Values["controller"].ToString() == item3.CONTROLLER ? Html.Raw("class= \"active open hsub\"") : @Html.Raw("class= \"open\""))>
+                                        @*@Html.NavigationItemAction(item3.CONTROLLER, item3.METHOD_NAME, "menu-icon fa fa-caret-left LinkUrl " + item3.ID + "", item3.NAME )*@
+
+                                        <a class="LinkUrl" id="@item3.ID" href="@Url.Action(item3.METHOD_NAME,item3.CONTROLLER)">
+                                            <i class="menu-icon fa fa-caret-left"></i>
+                                            @item3.NAME
+                                        </a>
+
+                                    </li>
+                                }
+                            }
+                        </ul>
+
+                    </li>     }
+
+            }
+        </ul>
+
+    </li>
+}
+
+
+
+

@@ -1,0 +1,1429 @@
+﻿<div class="k-rtl">
+    @(Html.Kendo().Notification()
+    .Name("popupNotification")
+    .Position(p => p.Bottom(30).Left(30))
+    )
+
+    @(Html.Kendo().Notification()
+    .Name("errorNotification")
+    .Position(p => p.Top(30).Left(30))
+    )
+</div>
+
+<script type="text/javascript" language="javascript">
+
+    function onChatStaffAdditionalData(e) {
+        return {
+            type: $('#modal-task-chat').data('typename'),
+            id: $('#modal-task-chat').data('typeid')
+        }
+    }
+    function openWindowWithPost(url, data) {
+        var form = document.createElement("form");
+        form.target = "_blank";
+        form.method = "POST";
+        form.action = url;
+        form.style.display = "none";
+
+        for (var key in data) {
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = key;
+            input.value = data[key];
+            form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
+
+
+
+    jQuery(function ($) {
+        var pNotif = $('#popupNotification').data('kendoNotification');
+        var eNotif = $('#errorNotification').data('kendoNotification');
+
+        var hub = $.connection.chatHub;
+
+        $.connection.hub.start().done();
+
+        hub.off('addTask').on('addTask', function (name, id, message) {
+            BT.Ajax.GET('@Url.Action("GetTask", "Home")',
+                { id: id },
+                function (d) {
+                    var rootDir = "@Url.Content("~/")";
+                    var url = rootDir + d.Url;
+                    $('#tasks-ul').prepend('<li>' +
+                        '<a href="' + (BT.isNullOrEmpty(d.Url) ? '#' : url) + '" data-notifid="' + d.Id + '" class="xTasks">' +
+                        '<div class="clearfix">' +
+                        '<span class="pull-left">' +
+                        d.TaskName +
+                        '</span>' +
+                        '</div>' +
+                        '</a>' +
+                        '</li>');
+
+                    $('#task-count').html(parseInt($('#task-count').html(), 10) + 1);
+                    $('#task-header-count').html(parseInt($('#task-header-count').html(), 10) + 1);
+
+                    var el = $('#unfinished-tasks');
+                    if (el.length) {
+                        var res = '';
+                        if (d.IsManual == "Y") {
+                            res = '<li class="item-default clearfix" style="background-color:#F4F9FC">' +
+                                '<label class="inline">' +
+                                '<input type="checkbox" class="ace" data-taskid="' + d.Id + '" />' +
+                                '<span class="lbl">' +
+                                d.TaskName +
+                                (BT.isNullOrEmpty(d.TaskTypeAr) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + d.TaskTypeAr) +
+                                '</span>' +
+                                '</label>' +
+                                '<div class="pull-left action-buttons">' +
+                                (BT.isNullOrEmpty(d.Url) ? '' : '<a href="' + d.Url + '" class="blue tooltip-info" data-rel="tooltip" data-placement="right" title="' + d.Url + '">' +
+                                    '<i class="ace-icon fa fa-link bigger-130"></i>' +
+                                    '</a>') +
+                                (!BT.isNullOrEmpty(d.ActualStartDate) ? '' : '<a href="#" class="green tooltip-success startTask" data-taskid="' + d.Id + '" data-rel="tooltip" data-placement="right" title="Start">' +
+                                    '<i class="ace-icon glyphicon glyphicon-play bigger-130"></i>' +
+                                    '</a>') +
+                                //'<a href="#" class="red tooltip-error dismissTask" data-taskid="' + d.Id + '" data-rel="tooltip" data-placement="right" title="Dismiss">' +
+                                //'<i class="ace-icon glyphicon glyphicon-remove bigger-130"></i>' +
+                                //'</a>' +
+                                '<a href="#" class="blue tooltip-info subTask" data-taskid="' + d.Id + '" data-rel="tooltip" data-placement="right" title="Sub Tasks">' +
+                                '<i class="ace-icon glyphicon glyphicon-list bigger-130"></i>' +
+                                '</a>' +
+                                '<a href="#" class="orange tooltip-warning details" data-taskid="' + d.Id + '" data-rel="tooltip" data-placement="right" title="Details">' +
+                                '<i class="ace-icon glyphicon glyphicon-info-sign bigger-130"></i>' +
+                                '</a>' +
+                                '</div>' +
+                                '</li>';
+                        } else {
+                            res = '<li class="item-default clearfix ui-sortable-handle">' +
+                                '<label class="inline"><span class="lbl">' +
+                                '<a href="' + d.Url + '" class="blue">' + d.TaskName + "&nbsp;&nbsp; - &nbsp;&nbsp" + d.TaskTypeAr
+                                + "&nbsp;&nbsp; - &nbsp;&nbsp;" + BT.DateTime.getDate(d.DateCreated) + "&nbsp;&nbsp; - &nbsp;&nbsp;" + "[من الموظف:" + d.FromStaffName + "]" + '</a>' +
+                                '</span></label>' +
+                                '<div class="pull-left action-buttons">' +
+                                '<a href="' + d.Url + '" class="blue tooltip-info" data-rel="tooltip" data-placement="right" title="" data-original-title="الرابط">' +
+                                '<i class="ace-icon fa fa-link bigger-130"></i></a></div></li>';
+                        }
+
+                        //el.append(res);
+                        $('#unfinished-tasks li:first').before(res);
+                        subscribeToEvents();
+                    }
+                    BT.showInfoNotice(d.TaskName, name);
+                    //setTimeout(function () {
+                    //    pNotif.show(name + ': ' + d.TaskName);
+                    //}, 9000);
+                    //setTimeout(function () {
+                    //    BT.showInfoNotice(d.TaskName, name);
+                    //}, 9000);
+
+                },
+                false);
+
+        });
+
+        hub.off('addNotification').on('addNotification', function (name, id, message) {
+            //pNotif.show(name + ': ' + message);
+            BT.showInfoNotice(message, name);
+            //setTimeout(function () {
+            //    pNotif.show(name + ': ' + message);
+            //}, 9000);
+
+            //setTimeout(function () {
+            //    BT.showInfoNotice(message, name);
+            //}, 9000);
+            //$('#notifications-ul').prepend('<li>' +
+            //    '<a href="#" data-notifid="' + id + '" class="xNotifs">' +
+            //    '<div class="clearfix">' +
+            //    '<span class="pull-left">' +
+            //    message +
+            //    '</span>' +
+            //    '</div>' +
+            //    '</a>' +
+            //    '</li>');
+            $("#staff-notifs-load-more").css("display", "block");
+
+            BT.Ajax.GET('@Url.Action("GetNoti", "Home")',
+           { id: id },
+           function (d) {
+               $('#notifications-ul').css("display", "block");
+               var rootDir = "@Url.Content("~/")";
+               var url = rootDir + d.Url;
+               //$('#tasks-ul').prepend('<li>' +
+               $('#notifications-ul').prepend('<li>' +
+                   '<a href="' + (BT.isNullOrEmpty(d.Url) ? '#' : url) + '" data-notifid="' + d.Id + '" class="xTasks">' +
+                   '<div class="clearfix">' +
+                   '<span class="pull-left">' +
+                   d.TaskName +
+                   '</span>' +
+                   '</div>' +
+                   '</a>' +
+                   '</li>');
+
+
+
+               var el = $('#unfinished-notifications');
+               if (el.length) {
+                   var res = '';
+                   if (d.Url != null) {
+                       res = '<li class="item-default clearfix ui-sortable-handle">' +
+                            '<label class="inline"><input type="checkbox" class="ace" disabled="disabled" /><span class="lbl">' +
+                            '<a href="' + d.Url + '" class="blue">' + d.TaskName + "&nbsp;&nbsp; - &nbsp;&nbsp;" + BT.DateTime.getDate(d.DateCreated) + '</a>' +
+                            '</span></label>' +
+                            '<div class="pull-left action-buttons">' +
+                            '<a href="' + d.Url + '" class="blue tooltip-info" data-rel="tooltip" data-placement="right" title="" data-original-title="الرابط">' +
+                            '<i class="ace-icon fa fa-link bigger-130"></i></a></div></li>';
+                   } else {
+                       res = '<li class="item-default clearfix ui-sortable-handle">' +
+                           '<label class="inline"><input type="checkbox" class="ace" disabled="disabled" /><span class="lbl">' +
+                           '<a href="#" class="blue">' + d.TaskName + "&nbsp;&nbsp; - &nbsp;&nbsp;" + BT.DateTime.getDate(d.DateCreated) + '</a>' +
+                           '</span></label>' +
+                           '<div class="pull-left action-buttons">';
+                   }
+
+                   //el.append(res);
+                   $('#unfinished-notifications li:first').before(res);
+
+               }
+
+
+           },
+           false);
+
+            $('#notif-count').html(parseInt($('#notif-count').html(), 10) + 1);
+            $('#notif-header-count').html(parseInt($('#notif-header-count').html(), 10) + 1);
+        });
+
+        hub.off('addMsg').on('addMsg', function (name, type, id, date, message) {
+            var modalTaskChat = $('#modal-task-chat'),
+                nCount = $('#staff-msgs-notif-count'),
+                hCount = $('#staff-msgs-notif-header-count'),
+                ul = $('#staff-msgs-notif-ul');
+
+            var wnd = modalTaskChat.data('kendoWindow');
+            //var xx = wnd.element.is(':visible');
+
+            if (wnd.element.is(':visible') && modalTaskChat.data('typename') === type && modalTaskChat.data('typeid') === id) {
+                var dlg = modalTaskChat.find('.dialogs').eq(0);
+
+                var res = '<div class="itemdiv dialogdiv">' +
+                    '<div class="body" style="margin-left: 1px;margin-right: 1px">' +
+                    '<div class="time">' +
+                    '<i class="ace-icon fa fa-clock-o" style="margin-left: 3px;margin-right: 3px"></i>' +
+                    '<span class="green">' + BT.DateTime.getDate(date, 'DD/MM/YYYY hh:mm:ss A') + '</span>' +
+                    '</div>' +
+                    '<div class="name">' +
+                    '<a href="#" style="cursor: default">' + name + '</a>' +
+                    '</div>' +
+                    '<div class="text">' + message.replace(/\n/g, '<br />') + '</div>' +
+                    '</div>' +
+                    '</div>';
+
+                dlg.append(res);
+
+                BT.scrollToEl(modalTaskChat.find('.modal-body').eq(0), dlg.find('.itemdiv:last'));
+            } else {
+                var dlg = modalTaskChat.find('.dialogs').eq(0);
+                var res = '<div class="itemdiv dialogdiv">' +
+                  '<div class="body" style="margin-left: 1px;margin-right: 1px">' +
+                  '<div class="time">' +
+                  '<i class="ace-icon fa fa-clock-o" style="margin-left: 3px;margin-right: 3px"></i>' +
+                  '<span class="green">' + BT.DateTime.getDate(date, 'DD/MM/YYYY hh:mm:ss A') + '</span>' +
+                  '</div>' +
+                  '<div class="name">' +
+                  '<a href="#" style="cursor: default">' + name + '</a>' +
+                  '</div>' +
+                  '<div class="text">' + message.replace(/\n/g, '<br />') + '</div>' +
+                  '</div>' +
+                  '</div>';
+                //ul.prepend('<li>' +
+                //'<a href="#" data-typename="' + type + '" data-typeid="' + id + '" class="xTaskMsgs">' +
+                //'<div class="clearfix">' +
+                //'<span class="pull-left">' +
+                //name + ': ' + message +
+                //'</span>' +
+                //'</div>' +
+                //'</a>' +
+                //'</li>');
+                dlg.append(res);
+                $('.xTaskMsgs').off('click').on('click', function () {
+                    BT.Chat.show($(this).data('typename'), $(this).data('typeid'), '@Url.Action("GetMsgsById", "Home")', '@Url.Action("SendMsg", "Home")');
+                    //taskChat($(this).data('msgid'));
+                });
+
+                nCount.html(parseInt(nCount.html(), 10) + 1);
+                hCount.html(parseInt(hCount.html(), 10) + 1);
+            }
+        });
+
+        hub.off('addMemo').on('addMemo', function (name, subject, id) {
+            var cnt1 = $('#staff-memo-notif-count'),
+                cnt2 = $('#staff-memo-notif-header-count');
+
+            $('#staff-memo-notif-ul').prepend('<li data-memoid="' + id + '">' +
+                        '<a href="#" class="xMemoNotifs">' +
+                        '<div class="clearfix">' +
+                        '<span class="pull-left">' +
+                        name + ': ' + subject +
+                        '</span>' +
+                        '</div>' +
+                        '</a>' +
+                        '</li>');
+
+            cnt1.html(parseInt(cnt1.html(), 10) + 1);
+            cnt2.html(parseInt(cnt2.html(), 10) + 1);
+        });
+
+        hub.off('addError').on('addError', function (message) {
+            BT.Chat.error(message);
+            //eNotif.show(message, 'error');
+            //BT.showErrorNotice(message);
+        });
+
+        $('.task').sortable({
+            opacity: 0.8,
+            revert: true,
+            forceHelperSize: true,
+            placeholder: 'draggable-placeholder',
+            forcePlaceholderSize: true,
+            tolerance: 'pointer',
+            stop: function (event, ui) {
+                //just for Chrome!!!! so that dropdowns on items don't appear below other items after being moved
+                $(ui.item).css('z-index', 'auto');
+            }
+        });
+
+        $('.task').disableSelection();
+
+        $('.scrollable').each(function () {
+            var $this = $(this);
+            $(this).ace_scroll({
+                size: $this.data('height'),// || 300,
+                //styleClass: 'scroll-left scroll-margin scroll-thin scroll-dark scroll-light no-track scroll-visible'
+            });
+        });
+
+        function subscribeToEvents() {
+            $('[data-rel=tooltip]').tooltip();
+
+            // $('.task input:checkbox').off('click').on('click', function ()
+            $('.entTask').off('click').on('click',  function () {
+                //if (this.checked)
+                //{
+                var el = $(this);
+                var tid = el.data('taskid');
+                bootbox.confirm('هل انت متأكد من إنهاء المهمة؟', function (r) {
+                    if (r) {
+                        //el.closest('li').addClass('selected');
+                        //var id = el.closest('ul').attr('id');
+                        //if (id === 'unfinished-tasks') {
+
+
+                            BT.Ajax.POST('@Url.Action("CompleteTask", "Home")',
+                                {
+                                    id: tid
+                                },
+                                function () {
+                                    el.hide();
+                                    $("#task").data("kendoGrid").dataSource.read();
+                                    $("#taskCompleted").data("kendoGrid").dataSource.read();
+                                    //$('#finished-tasks').prepend(el.closest('li.item-default').detach());
+                                    //el.closest('li.item-default').removeClass('selected');
+                                    //el.closest('li.item-default').find('a.startTask').hide();
+                                    //el.closest('li.item-default').find('a.dismissTask').hide();
+                                   // el.closest('li.item-default').find('input:checkbox').prop('checked', false).prop('disabled', true);
+                                },
+                                true);
+                     }
+                    //} else {
+                    //    el.prop('checked', false);
+                    //}
+                });
+                //}
+                //else $(this).closest('li').removeClass('selected');
+            });
+
+            //$(document).off('click').on('click', '.startTask', function (e) {
+            $('.startTask').off('click').on('click',  function (e) {
+                var el = $(this);
+                var id = el.data('taskid');
+
+                el.closest('li').css('background-color', '#FFF');
+
+                bootbox.confirm('هل انت متأكد؟', function (r) {
+                    if (r) {
+                        BT.Ajax.POST('@Url.Action("StartTask", "Home")',
+                            {
+                                id: id
+                            },
+                            function (d) {
+                                el.hide();
+                                //$('#dismissed-tasks').prepend(el.closest('li.item-default').detach());
+                            },
+                            true);
+                    }
+                });
+            });
+
+            $('.taskChat').off('click').on('click',  function () {
+                //taskChat($(this).data('taskid'));
+                $(this).closest('li').css('background-color', '#FFF');
+
+                BT.Chat.show('ta', $(this).data('taskid'), '@Url.Action("GetMsgsById", "Home")', '@Url.Action("SendMsg", "Home")');
+            });
+
+            $('.subTask').off('click').on('click',  function () {
+                var el = $(this),
+                    id = el.data('taskid'),
+                    resultGrid = '#subTasksGrid',
+                    w = '#subTasksWindow',
+                    closeBtn = $('#subTaskWindowCloseButton');
+
+                $('#hTaskId').val(id);
+
+                closeBtn.off('click').on('click', function (ec) {
+                    BT.Dialog.kClose(w);
+                });
+
+                BT.Grid.kEmpty(resultGrid);
+
+                BT.Dialog.kOpen(w);
+
+                BT.Grid.kReload(resultGrid);
+            });
+
+            $('.taskAttach').off('click').on('click',  function () {
+                var el = $(this),
+                    id = el.data('taskid'),
+                    resultGrid = '#TasksAttachmentGrid',
+                    w = '#taskAttachWindow',
+                    closeBtn = $('#taskAttachWindowCloseButton');
+
+                $('#hTaskId').val(id);
+
+                closeBtn.off('click').on('click', function (ec) {
+                    BT.Dialog.kClose(w);
+                });
+
+                BT.Grid.kEmpty(resultGrid);
+
+                BT.Dialog.kOpen(w);
+
+                BT.Grid.kReload(resultGrid);
+            });//taskAttach
+
+
+
+            $('.tasknOTE').off('click').on('click', function () {
+                var el = $(this),
+                    id = el.data('taskid');
+                BT.Ajax.GET('@Url.Action("GetTaskDetails", "Home")',
+                    { id: id },
+                    function(d) {
+                        $("#noteTask").html(d.NOTES);
+                        $("#modal-NoteTask").modal('show');
+                    });
+               $("#notesTaskSaveButton").off('click').on('click', function() {
+                    if ($("#noteTask").val() == "") {
+                        BT.showErrorNotice("الملاحظة حقل ضروري");
+                    }
+                    else {
+                        $.ajax({
+                            type: 'post',
+                            url: "@Url.Action("NoteTask", "Home")",
+                            data: {
+                            id: id,
+                            note:$("#noteTask").val()
+                            },
+                        success: (function (data) {
+                            if (!data.done)
+                            {
+                                BT.showErrorNotice(data.msg);
+                                
+                            }
+                            else {
+
+                                BT.showSuccessNotice();
+                                $("#noteTask").val("");
+                                $("#modal-NoteTask").modal('hide');
+                                $("#task").data("kendoGrid").dataSource.read();
+                            }
+                            
+                        })
+                    });
+                    }
+               
+                });
+            });
+
+            //$(document).off('click').on('click', '.details', function () {
+            $('.details').off('click').on('click',  function () {
+                var el = $(this),
+                    id = el.data('taskid'),
+                    dialog = $('#modal-task-details'),
+                    taskNameAr = $('#taskNameAr'),
+                    taskNameEn = $('#taskNameEn'),
+                    taskTypeNameAr = $('#taskTypeNameAr'),
+                    taskDateCreated = $('#taskDateCreated'),
+                    taskFromStaff = $('#taskFromStaff'),
+                    taskCompleted = $('#taskCompleted'),
+                    taskDateCompleted = $('#taskDateCompleted'),
+                    //taskDismissed = $('#taskDismissed'),
+                    //taskDateDismissed = $('#taskDateDismissed'),
+                    taskPlannedStartDate = $('#taskPlannedStartDate'),
+                    taskActualStartDate = $('#taskActualStartDate'),
+                    taskPlannedEndDate = $('#taskPlannedEndDate'),
+                    taskActualEndDate = $('#taskActualEndDate'),
+                    memoType = $('#memoType'),
+                    taskDescription = $('#taskDescription'),
+                    taskNote = $('#taskNote');
+
+                BT.Ajax.GET('@Url.Action("GetTaskDetails", "Home")',
+                    { id: id },
+                    function (d) {
+                        $('.memo').addClass('hide');
+                        $("#tMemo").val("");
+                        $("#subMemo").val("");
+                        $("#textMemo").val("");
+                        taskNameAr.val(d.TaskName);
+                        taskNameEn.val(d.TaskNameEn);
+                        taskTypeNameAr.val(d.TaskTypeAr);
+                        taskDateCreated.val(BT.DateTime.getDate(d.DateCreated));
+                        taskFromStaff.val(d.FromStaffName);
+                        taskCompleted.val(d.Complete === 'Y' ? 'نعم' : 'لا');
+                        taskDateCompleted.val(d.DateCompleted!=null?BT.DateTime.getDate(d.DateCompleted):"");
+                        //taskDismissed.val(d.Dismissed === 'Y' ? 'نعم' : 'لا');
+                        //taskDateDismissed.val(BT.DateTime.getDate(d.DismissedDate));
+                        taskPlannedStartDate.val(BT.DateTime.getDate(d.PlannedStartDate));
+                        taskActualStartDate.val(d.ActualStartDate!=null?BT.DateTime.getDate(d.ActualStartDate):"");
+                        taskPlannedEndDate.val(BT.DateTime.getDate(d.PlannedEndDate));
+                        taskActualEndDate.val(d.ActualEndDate!=null?BT.DateTime.getDate(d.ActualEndDate):"");
+                        taskDescription.val(d.Description);
+                        taskNote.val(d.NOTES);
+                        if (d.MemoId != null) {
+                            $('.memo').removeClass('hide');
+                            memoType.val(d.TypeMemo);
+                            //$("#tMemo").val(d.TypeMemo);
+                            //$("#subMemo").val(d.SubMemo);
+                            //$("#textMemo").val(d.TextMemo);
+                           
+
+                        }
+                        dialog.modal('show');
+                        if (d.MemoId != null) {
+                            $('#memoType1').off('click').on('click', function () {
+                                var url = '@Url.Action("Index", "GetMemo")';
+                                openWindowWithPost(url, { memoId: d.MemoId });
+                                @*var lnk = "@Url.Action("Index", "GetMemo", new { memoId="_id_" })";
+                                lnk = lnk.replace("_id_", d.MemoId);
+                                window.open(lnk, '_blank');*@
+                                @*$.ajax({
+                                    type: "Get",
+                                    url: "@Url.Action("GetMemoPartial", "Home")",
+                                    data: { memoId: d.MemoId }
+                            }).done(function (d) {
+                                $("#modal-taskMemo-detailsBody").html(d);
+                            $("#modal-taskMemo-details").modal('show');
+
+                                dialog.modal('show');*@
+
+                            });
+                                dialog.modal('show');
+
+                                //if (d.MemoId != null) {
+                                //    $('#memoType1').click(function () {
+                                //        $("#modal-taskMemo-details").modal('show');
+                                //    });}
+                           
+                       // });
+}
+
+                        el.closest('li').css('background-color', '#FFF');
+                    },
+                    false);
+                $(".closeMemo").click(function() {
+                    $('.memo').addClass('hide');
+                    $("#tMemo").val("");
+                    $("#subMemo").val("");
+                    $("#textMemo").val("");
+                });
+
+            });
+        }
+
+        subscribeToEvents();
+
+        //var fromDate = 'fDate';
+
+        var lastFinishedPage = 1;
+        var lastUnFinishedPage = 1;
+        var lastSUnFinishedPage = 0;
+        var lastDismissedPage = 1;
+        var lastNotifPage = 1;
+        var lastSNotifPage = 0; //1
+
+        $('#finished-load-more').off('click').on('click', function ()
+        {
+            var el = $(this).prev('ul');
+            BT.Ajax.GET('@Url.Action("LoadMoreFinishedTasks", "Home")',
+                {
+                    page: lastFinishedPage,
+                    taskTypes: $.map($('.f_task-types-chk:checked'), function (checkbox) { return parseInt($(checkbox).val()); })
+                },
+                function (d) {
+                    lastFinishedPage = d.Page;
+
+                    var res = '';
+
+                    $.each(d.Tasks, function (i, v) {
+                        res += '<li class="item-default clearfix">' +
+                            '<label class="inline">' +
+                            //'<input type="checkbox" class="ace" data-taskid="' + v.Id + '" />' +
+                            '<span class="lbl">' +
+                            v.TaskName +
+                            (BT.isNullOrEmpty(v.TaskTypeAr) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + v.TaskTypeAr) +
+                            (BT.isNullOrEmpty(v.DateCreated) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + BT.DateTime.getDate(v.DateCreated, 'DD/MM/YYYY hh:mm:ss A')) +
+                            '<span class="blue">[من الموظف  :' + v.fromStaff + ']</span></span>' +
+                            '</label>' +
+                            '<div class="pull-left action-buttons">' +
+                            (BT.isNullOrEmpty(v.Url) ? '' : '<a href="' + v.Url + '" class="blue tooltip-info" data-rel="tooltip" title="' + v.Url + '">' +
+                                '<i class="ace-icon fa fa-link bigger-130"></i>' +
+                                '</a>') +
+                            '</div>' +
+                            '</li>';
+                    });
+
+                    el.append(res);
+
+                    subscribeToEvents();
+                },
+                false);
+        });
+
+        $('#finished-load-more-send').off('click').on('click', function () {
+            var el = $(this).prev('ul');
+            BT.Ajax.GET('@Url.Action("LoadMoreFinishedTasksSend", "Home")',
+                {
+                    page: lastFinishedPage,
+                    taskTypes: $.map($('.f_task-types-chk:checked'), function (checkbox) { return parseInt($(checkbox).val()); })
+                },
+                function (d) {
+                    lastFinishedPage = d.Page;
+
+                    var res = '';
+
+                    $.each(d.Tasks, function (i, v) {
+                        res += '<li class="item-default clearfix">' +
+                            '<label class="inline">' +
+                            //'<input type="checkbox" class="ace" data-taskid="' + v.Id + '" />' +
+                            '<span class="lbl">' +
+                            v.TaskName +
+                            (BT.isNullOrEmpty(v.TaskTypeAr) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + v.TaskTypeAr) +
+                            (BT.isNullOrEmpty(v.DateCreated) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + BT.DateTime.getDate(v.DateCreated, 'DD/MM/YYYY hh:mm:ss A')) +
+                            '<span class="blue">[الى الموظف  :' + v.fromStaff + ']</span></span>' +
+                            '</label>' +
+                            '<div class="pull-left action-buttons">' +
+                            (BT.isNullOrEmpty(v.Url) ? '' : '<a href="' + v.Url + '" class="blue tooltip-info" data-rel="tooltip" title="' + v.Url + '">' +
+                                '<i class="ace-icon fa fa-link bigger-130"></i>' +
+                                '</a>') +
+                            '</div>' +
+                            '</li>';
+                    });
+
+                    el.append(res);
+
+                    subscribeToEvents();
+                },
+                false);
+        });
+
+        $('#dismissed-load-more').off('click').on('click', function () {
+            var el = $(this).prev('ul');
+            BT.Ajax.GET('@Url.Action("LoadMoreDismissedTasks", "Home")',
+                { page: lastDismissedPage },
+                function (d) {
+                    lastDismissedPage = d.Page;
+
+                    var res = '';
+
+                    $.each(d.Tasks, function (i, v) {
+                        res += '<li class="item-default clearfix">' +
+                            '<label class="inline">' +
+                            '<input type="checkbox" class="ace" data-taskid="' + v.Id + '" />' +
+                            '<span class="lbl">' +
+                            v.TaskName +
+                            (BT.isNullOrEmpty(v.TaskTypeAr) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + v.TaskTypeAr) +
+                            (BT.isNullOrEmpty(v.DateCreated) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + BT.DateTime.getDate(v.DateCreated, 'DD/MM/YYYY hh:mm:ss A')) +
+                            '</span>' +
+                            '</label>' +
+                            '<div class="pull-left action-buttons">' +
+                            (BT.isNullOrEmpty(v.Url) ? '' : '<a href="' + v.Url + '" class="blue tooltip-info" data-rel="tooltip" title="' + v.Url + '">' +
+                                '<i class="ace-icon fa fa-link bigger-130"></i>' +
+                                '</a>') +
+                            '</div>' +
+                            '</li>';
+                    });
+
+                    el.append(res);
+
+                    subscribeToEvents();
+                },
+                false);
+        });
+
+        $('#unfinished-load-more').off('click').on('click', function () {
+            var el = $(this).prev('ul');
+            BT.Ajax.GET('@Url.Action("LoadMoreUnFinishedTasks", "Home")',
+                { page: lastUnFinishedPage },
+                function (d) {
+                    lastUnFinishedPage = d.Page;
+
+                    var res = '';
+
+                    $.each(d.Tasks, function (i, v) {
+                        res += '<li class="item-default clearfix">' +
+                            '<label class="inline">' +
+                            '<input type="checkbox" class="ace" data-taskid="' + v.Id + '" />' +
+                            '<span class="lbl">' +
+                            v.TaskName +
+                            (BT.isNullOrEmpty(v.TaskTypeAr) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + v.TaskTypeAr) +
+                            (BT.isNullOrEmpty(v.DateCreated) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + BT.DateTime.getDate(v.DateCreated, 'DD/MM/YYYY hh:mm:ss A')) +
+                            '</span>' +
+                            '</label>' +
+                            '<div class="pull-left action-buttons">' +
+                            (BT.isNullOrEmpty(v.Url) ? '' : '<a href="' + v.Url + '" class="blue tooltip-info" data-rel="tooltip" data-placement="right" title="' + v.Url + '">' +
+                                '<i class="ace-icon fa fa-link bigger-130"></i>' +
+                                '</a>') +
+                            (!BT.isNullOrEmpty(v.ActualStartDate) ? '' : '<a href="#" class="green tooltip-success startTask" data-taskid="' + v.Id + '" data-rel="tooltip" data-placement="right" title="Start">' +
+                                '<i class="ace-icon glyphicon glyphicon-play bigger-130"></i>' +
+                                '</a>') +
+                            //'<a href="#" class="red tooltip-error dismissTask" data-taskid="' + v.Id + '" data-rel="tooltip" data-placement="right" title="Dismiss">' +
+                            //'<i class="ace-icon glyphicon glyphicon-remove bigger-130"></i>' +
+                            //'</a>' +
+                            '<a href="#" class="blue tooltip-info subTask" data-taskid="' + v.Id + '" data-rel="tooltip" data-placement="right" title="Sub Tasks">' +
+                            '<i class="ace-icon glyphicon glyphicon-list bigger-130"></i>' +
+                            '</a>' +
+                            '<a href="#" class="orange tooltip-warning details" data-taskid="' + v.Id + '" data-rel="tooltip" data-placement="right" title="Details">' +
+                            '<i class="ace-icon glyphicon glyphicon-info-sign bigger-130"></i>' +
+                            '</a>' +
+                            '</div>' +
+                            '</li>';
+                    });
+
+                    el.append(res);
+
+                    subscribeToEvents();
+                },
+                false);
+        });
+
+        $('#notifications-load-more').off('click').on('click', function () {
+            var el = $(this).prev('ul');
+            BT.Ajax.GET('@Url.Action("LoadMoreNotifications", "Home")',
+                { page: lastNotifPage },
+                function (d) {
+                    lastNotifPage = d.Page;
+
+                    var res = '';
+
+                    $.each(d.Tasks, function (i, v) {
+                        res += '<li class="item-default clearfix">' +
+                            '<label class="inline">' +
+                            '<input type="checkbox" class="ace" disabled="disabled" />' +
+                            '<span class="lbl">' +
+                            v.TaskName +
+                            '</span>' +
+                            '</label>';
+
+                        if (!BT.isNullOrEmpty(v.TaskId)) {
+                            res += '<div class="pull-left action-buttons">' +
+                                '<a href="#" class="red tooltip-error taskChat" data-taskid="' + v.TaskId + '" data-rel="tooltip" data-placement="right" title="المحادثات">' +
+                                '<i class="ace-icon glyphicon glyphicon-comment bigger-130"></i>' +
+                                '</a>' +
+                                '<a href="#" class="blue tooltip-info subTask" data-taskid="' + v.TaskId + '" data-rel="tooltip" data-placement="right" title="المهام الفرعية">' +
+                                '<i class="ace-icon glyphicon glyphicon-list bigger-130"></i>' +
+                                '</a>' +
+                                '<a href="#" class="orange tooltip-warning details" data-taskid="' + v.TaskId + '" data-rel="tooltip" data-placement="right" title="التفاصيل">' +
+                                '<i class="ace-icon glyphicon glyphicon-info-sign bigger-130"></i>' +
+                                '</a>' +
+                                '<a href="#" class="dark taskAttach" data-taskid="' + v.TaskId + '" data-rel="tooltip" data-placement="right" title="المرفقات">' +
+                                '<i class="ace-icon glyphicon glyphicon-paperclip bigger-130"></i>' +
+                                '</a>' +
+                                '</div';
+                        }
+
+                        res += '</li>';
+                    });
+
+                    el.append(res);
+
+                    subscribeToEvents();
+                },
+                false);
+        })
+        .trigger('click');
+
+        function getTaskLiString(v) {
+            var url = '', res = '';
+
+            if (!BT.isNullOrEmpty(v.Url)) {
+                var urlParts = v.Url.split('\\');
+                url = urlParts.length === 4
+                    ? '@string.Format("{0}{1}", Url.Action("__act__", "__cont__"), "__qs__")'
+                    : '@string.Format("{0}", Url.Action("__act__", "__cont__"))';
+
+                url = url.replace('__act__', urlParts[2]);
+                url = url.replace('__cont__', urlParts[1]);
+                url = url.replace('__qs__', urlParts[3]);
+            }
+
+            res += '<li class="item-default clearfix">' +
+                '<label class="inline">';
+
+            if (v.IsManual === 'Y' && CompleteFromView == "N") {
+                res += '<input type="checkbox" class="ace" data-taskid="' + v.Id + '" />';
+            }
+
+            res += '<span class="lbl">';
+
+            if (v.IsManual === 'N' && !BT.isNullOrEmpty(url) && CompleteFromView == "N") {
+                res += '<a href="' + url + '" class="blue">' +
+                    v.TaskName +
+                    (BT.isNullOrEmpty(v.TaskTypeAr) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + v.TaskTypeAr) +
+                    (BT.isNullOrEmpty(v.DateCreated) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + BT.DateTime.getDate(v.DateCreated, 'DD/MM/YYYY hh:mm:ss A')) +
+                    '</a>';
+            } else {
+                res += v.TaskName +
+                    (BT.isNullOrEmpty(v.TaskTypeAr) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + v.TaskTypeAr) +
+                    (BT.isNullOrEmpty(v.DateCreated) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + BT.DateTime.getDate(v.DateCreated, 'DD/MM/YYYY hh:mm:ss A'));
+            }
+            res += "<span class='blue'>   [ من الموظف:" + v.fromStaff + "]</span>"
+            res += '</span></label><div class="pull-left action-buttons">';
+
+            if (!BT.isNullOrEmpty(url)) {
+                res += '<a href="' + url + '" class="blue tooltip-info" data-rel="tooltip" data-placement="right" title="الرابط">' +
+                    '<i class="ace-icon fa fa-link bigger-130"></i>' +
+                    '</a>';
+            }
+
+            if (v.IsManual === 'Y') {
+                if (!BT.isNullOrEmpty(v.ActualStartDate)) {
+                    res += '<a href="#" class="green tooltip-success startTask" data-taskid="' + v.Id + '" data-rel="tooltip" data-placement="right" title="بدء المهمة">' +
+                        '<i class="ace-icon glyphicon glyphicon-play bigger-130"></i>' +
+                        '</a>';
+                }
+
+                res += '<a href="#" class="red tooltip-error taskChat" data-taskid="' + v.Id + '" data-rel="tooltip" data-placement="right" title="المحادثات">' +
+                    '<i class="ace-icon glyphicon glyphicon-comment bigger-130"></i>' +
+                    '</a>' +
+                    '<a href="#" class="blue tooltip-info subTask" data-taskid="' + v.Id + '" data-rel="tooltip" data-placement="right" title="المهام الفرعية">' +
+                    '<i class="ace-icon glyphicon glyphicon-list bigger-130"></i>' +
+                    '</a>' +
+                    '<a href="#" class="orange tooltip-warning details" data-taskid="' + v.Id + '" data-rel="tooltip" data-placement="right" title="التفاصيل">' +
+                    '<i class="ace-icon glyphicon glyphicon-info-sign bigger-130"></i>' +
+                    '</a>' +
+                    '<a href="#" class="dark taskAttach" data-taskid="' + v.Id + '" data-rel="tooltip" data-placement="right" title="المرفقات">' +
+                    '<i class="ace-icon glyphicon glyphicon-paperclip bigger-130"></i>' +
+                    '</a>';
+            }
+
+
+            res += '</li>';
+
+            return res;
+        }
+
+
+        function getTaskLiStringSend(v) {
+            var url = '', res = '';
+
+            if (!BT.isNullOrEmpty(v.Url)) {
+                var urlParts = v.Url.split('\\');
+                url = urlParts.length === 4
+                    ? '@string.Format("{0}{1}", Url.Action("__act__", "__cont__"), "__qs__")'
+                    : '@string.Format("{0}", Url.Action("__act__", "__cont__"))';
+
+                url = url.replace('__act__', urlParts[2]);
+                url = url.replace('__cont__', urlParts[1]);
+                url = url.replace('__qs__', urlParts[3]);
+            }
+
+            res += '<li class="item-default clearfix">' +
+                '<label class="inline">';
+
+            if (v.IsManual === 'Y' && CompleteFromView == "N") {
+                res += '<input type="checkbox" class="ace" data-taskid="' + v.Id + '" />';
+            }
+
+            res += '<span class="lbl">';
+
+            if (v.IsManual === 'N' && !BT.isNullOrEmpty(url) && CompleteFromView == "N") {
+                res += '<a href="' + url + '" class="blue">' +
+                    v.TaskName +
+                    (BT.isNullOrEmpty(v.TaskTypeAr) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + v.TaskTypeAr) +
+                    (BT.isNullOrEmpty(v.DateCreated) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + BT.DateTime.getDate(v.DateCreated, 'DD/MM/YYYY hh:mm:ss A')) +
+                    '</a>';
+            } else {
+                res += v.TaskName +
+                    (BT.isNullOrEmpty(v.TaskTypeAr) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + v.TaskTypeAr) +
+                    (BT.isNullOrEmpty(v.DateCreated) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + BT.DateTime.getDate(v.DateCreated, 'DD/MM/YYYY hh:mm:ss A'));
+            }
+            res += "<span class='blue'>   [ الى الموظف:" + v.fromStaff + "]</span>"
+            res += '</span></label><div class="pull-left action-buttons">';
+
+            if (!BT.isNullOrEmpty(url) && CompleteFromView == "N") {
+                res += '<a href="' + url + '" class="blue tooltip-info" data-rel="tooltip" data-placement="right" title="الرابط">' +
+                    '<i class="ace-icon fa fa-link bigger-130"></i>' +
+                    '</a>';
+            }
+
+            if (v.IsManual === 'Y') {
+                if (BT.isNullOrEmpty(v.ActualStartDate)) {
+                    res += '<a href="#" class="green tooltip-success startTask" data-taskid="' + v.Id + '" data-rel="tooltip" data-placement="right" title="بدء المهمة">' +
+                        '<i class="ace-icon glyphicon glyphicon-play bigger-130"></i>' +
+                        '</a>';
+                }
+
+                res += '<a href="#" class="red tooltip-error taskChat" data-taskid="' + v.Id + '" data-rel="tooltip" data-placement="right" title="المحادثات">' +
+                    '<i class="ace-icon glyphicon glyphicon-comment bigger-130"></i>' +
+                    '</a>' +
+                    '<a href="#" class="blue tooltip-info subTask" data-taskid="' + v.Id + '" data-rel="tooltip" data-placement="right" title="المهام الفرعية">' +
+                    '<i class="ace-icon glyphicon glyphicon-list bigger-130"></i>' +
+                    '</a>' +
+                    '<a href="#" class="orange tooltip-warning details" data-taskid="' + v.Id + '" data-rel="tooltip" data-placement="right" title="التفاصيل">' +
+                    '<i class="ace-icon glyphicon glyphicon-info-sign bigger-130"></i>' +
+                    '</a>' +
+                    '<a href="#" class="dark taskAttach" data-taskid="' + v.Id + '" data-rel="tooltip" data-placement="right" title="المرفقات">' +
+                    '<i class="ace-icon glyphicon glyphicon-paperclip bigger-130"></i>' +
+                    '</a>';
+            }
+
+
+            res += '</li>';
+
+            return res;
+        }
+
+        $('.unf_task-types-chk').off('change').on('change', function () {
+
+            var el = $('#unfinished-tasks').empty();
+            BT.Ajax.GET('@Url.Action("LoadUnFinishedTasks", "Home")',
+                { taskTypes: $.map($('.unf_task-types-chk:checked'), function (checkbox) { return parseInt($(checkbox).val()); }) },
+                function (d) {
+                    var res = '';
+
+                    $.each(d.Tasks, function (i, v) {
+                        res += getTaskLiString(v);
+                    });
+
+                    el.append(res);
+
+                    subscribeToEvents();
+                },
+                false);
+        });
+
+        $('.f_task-types-chk').off('change').on('change', function () {
+            var el = $('#finished-tasks').empty();
+            BT.Ajax.GET('@Url.Action("LoadMoreFinishedTasks", "Home")',
+                {
+                    page: 0,
+                    taskTypes: $.map($('.f_task-types-chk:checked'), function (checkbox) { return parseInt($(checkbox).val()); })
+                },
+                function (d) {
+                    lastFinishedPage = d.Page;
+                    var res = '';
+
+                    $.each(d.Tasks, function (i, v) {
+
+                        res += '<li class="item-default clearfix">' +
+                              '<label class="inline">' +
+                              //'<input type="checkbox" class="ace" data-taskid="' + v.Id + '" />' +
+                              '<span class="lbl">' +
+                              v.TaskName +
+                              (BT.isNullOrEmpty(v.TaskTypeAr) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + v.TaskTypeAr) +
+                              (BT.isNullOrEmpty(v.DateCreated) ? '' : '&nbsp;&nbsp; - &nbsp;&nbsp;' + BT.DateTime.getDate(v.DateCreated, 'DD/MM/YYYY hh:mm:ss A')) +
+                              '</span>' +
+                              '<span class="blue">   [ من الموظف:" ' + v.fromStaff + ' "]</label>' +
+                              '<div class="pull-left action-buttons">' +
+                              (BT.isNullOrEmpty(v.Url) ? '' : '<a href="' + v.Url + '" class="blue tooltip-info" data-rel="tooltip" title="' + v.Url + '">' +
+                                  '<i class="ace-icon fa fa-link bigger-130"></i>' +
+                                  '</a>') +
+                              '</div>' +
+                              '</li>';
+                    });
+
+                    el.append(res);
+
+                    subscribeToEvents();
+                },
+                false);
+        });
+
+        $('.task-types-chk').off('change').on('change', function () {
+            var checked = $.map($('.task-types-chk:checked'), function (checkbox) {
+                return parseInt($(checkbox).val());
+            });
+
+            var filter = {
+                logic: 'or',
+                filters: $.map(checked, function (value) {
+                    return {
+                        operator: 'eq',
+                        field: 'TaskTypeId',
+                        value: value
+                    };
+                })
+            };
+
+            var scheduler = $('#scheduler').data('kendoScheduler');
+
+            scheduler.dataSource.filter(filter);
+        });
+
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            var target = $(e.target).attr('href');
+
+            if (target === '#unfinished-task-tab'
+                || (target === '#dashboard-tasks-tab'
+                && $('a[href="#unfinished-task-tab"]').closest('li').hasClass('active'))) {
+                // $('.search-tasks').show();
+            } else {
+                // $('.search-tasks').hide();
+            }
+
+            if (target === '#calendar-task-tab') {
+                var scheduler = $('#scheduler').data('kendoScheduler');
+                scheduler.refresh();
+            }
+        });
+
+        $('a#staff-notifs').off('click').on('click', function (e) {
+            $('#notif-count').html(0);
+            $('#notif-header-count').html(0);
+
+        });
+
+        $('a#staff-tasks').off('click').on('click', function (e) {////previous//////
+            //$('#task-count').html(0);
+            //$('#task-header-count').html(0);
+        });
+
+        $('a#staff-memo-notif').off('click').on('click', function (e) {
+            $('#staff-memo-notif-count').html(0);
+            $('#staff-memo-notif-header-count').html(0);
+        });
+
+        $('a#staff-msgs-notif').off('click').on('click', function (e) {
+            var msgIds = $('#staff-msgs-notif-ul > li').map(function () {
+                return $(this).data('msgtoid');
+            }).get();
+
+            if (!msgIds.length) return;
+
+            BT.Ajax.POST('@Url.Action("UpdateReadMessages", "Home")',
+                { msgs: msgIds },
+                function () {
+                    $('#staff-msgs-notif-count').html(0);
+                    $('#staff-msgs-notif-header-count').html(0);
+                },
+                false
+            );
+        });
+
+        $('.xTaskMsgs').off('click').on('click', function () {
+            BT.Chat.show($(this).data('typename'), $(this).data('typeid'), '@Url.Action("GetMsgsById", "Home")', '@Url.Action("SendMsg", "Home")');
+
+        });
+
+        $('#staff-notifs-load-more').off('click').on('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            BT.Ajax.GET('@Url.Action("LoadMoreSNotifications", "Home")',
+                { page: lastSNotifPage },
+                function (d) {
+                    lastSNotifPage = d.Page;
+
+                    var res = '';
+                    var unreadCnt = 0;
+                    var unreadCnt_r = d.Count;
+                    var rootDir = "@Url.Content("~/")";
+
+                    //if (d.Count > 0) {
+                    $("#staff-notifs-load-more").css("display", "block");
+                    $("#notifications-ul").css("display", "block");
+
+                    $.each(d.Tasks, function (i, v) {
+                        if (v.Read === 'N') unreadCnt++;
+                        var url = rootDir + v.Url;
+                        res += '<li>' +
+                            '<a href="' + (BT.isNullOrEmpty(v.Url) ? '#' : url) + '"  data-notifid="' + v.Id + '" class="xNotifs">' +
+                            '<div class="clearfix">' +
+                            '<span class="pull-left' + (v.Read === 'N' ? ' bolder' : '') + '">' +
+                            v.NameAr +
+                            '</span>' +
+                            '</div>' +
+                            '</a>' +
+                            '</li>';
+                    });
+                    $('#notifications-ul').append(res);
+
+                    //} else {
+                    //    $("#staff-notifs-load-more").css("display", "none");
+                    //    $("#notifications-ul").css("display", "none");
+                    //}
+                    if (lastSNotifPage === 1) {
+                        //$('#notif-count').html(parseInt($('#notif-count').html(), 10) + d.Tasks.length);
+                        //$('#notif-header-count').html(parseInt($('#notif-header-count').html(), 10) + d.Tasks.length);
+                        //$('#notif-count').html(parseInt($('#notif-count').html(), 10) + unreadCnt);rimah
+                        $('#notif-count').html(parseInt($('#notif-count').html(), 10) + parseInt(unreadCnt_r));
+                    }
+                    $('#notif-header-count').html(parseInt($('#notif-header-count').html(), 10) + unreadCnt);
+                    //$('#notifications-ul').append(res);
+                },
+                false);
+        })
+       .trigger('click');
+
+        $('#staff-tasks-load-more').off('click').on('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            BT.Ajax.GET('@Url.Action("LoadMoreSUnFinishedTasks", "Home")',
+                { page: lastSUnFinishedPage },
+                function (d) {
+                    lastSUnFinishedPage = d.Page;
+
+                    var res = '';
+                    var unreadCnt = 0;
+                    var unreadCnt_r = d.Count;
+                    var rootDir = "@Url.Content("~/")";
+
+                    $.each(d.Tasks, function (i, v) {
+
+                        var url = rootDir + v.Url;
+
+                        //if (!BT.isNullOrEmpty(v.Url)) {
+                        //    var ss = v.Url;
+                        //    var urlParts = ss.replace("/", "\\").split('\\');
+
+                        //    if (urlParts.Count == 3) {
+                        //        //url += string.Format(urlParts[2].StartsWith("?")
+                        //        //                        ? "{0}{1}"
+                        //        //                        : "{0}/{1}", Url.Action(urlParts[1], urlParts[0]), urlParts[2]);
+                        //        url += urlParts[2].StartsWith("?")
+                        //                       ? "{0}{1}"
+                        //                       : "{0}/{1}".format( Url.Action(urlParts[1], urlParts[0]), urlParts[2]);
+                        //    }
+                        //    else if (urlParts.Count == 2) {
+                        //        url += string.Format("{0}", Url.Action(urlParts[1], urlParts[0]));
+                        //    }
+                        //    else {
+                        //        url += string.Format("{0}", Url.Action("Index", urlParts[0]));
+                        //    }
+                        //}
+                        if (v.Complete === 'N' || v.Complete === null) unreadCnt++;
+                        //if (v.Read === 'N') unreadCnt++;
+                        if (!BT.isNullOrEmpty(v.TaskName)) {
+                            res += '<li>' +
+                           //'<a href="' + (BT.isNullOrEmpty(v.Url) ? '#' : v.Url) + '" data-notifid="' + v.Id + '" class="xTasks">' +
+                           '<a href="' + (BT.isNullOrEmpty(v.Url) ? '#' : url) + '" data-notifid="' + url + '" class="xTasks">' +
+                           '<div class="clearfix">' +
+                           //'<span class="pull-left' + (v.Read === 'N' ? ' bolder' : '') + '">' +
+                           '<span class="pull-left' + (v.Complete === 'N' ? ' bolder' : '') + '">' +
+                           v.TaskName +
+                           '</span>' +
+                           '</div>' +
+                           '</a>' +
+                           '</li>';
+                        }
+                        //res += '<li>' +
+                        //    //'<a href="' + (BT.isNullOrEmpty(v.Url) ? '#' : v.Url) + '" data-notifid="' + v.Id + '" class="xTasks">' +
+                        //    '<a href="' + (BT.isNullOrEmpty(v.Url) ? '#' : url) + '" data-notifid="' + url + '" class="xTasks">' +
+                        //    '<div class="clearfix">' +
+                        //    '<span class="pull-left' + (v.Read === 'N' ? ' bolder' : '') + '">' +
+                        //    v.TaskName +
+                        //    '</span>' +
+                        //    '</div>' +
+                        //    '</a>' +
+                        //    '</li>';
+                    });
+
+                    if (lastSUnFinishedPage === 1) {
+
+                        //$('#task-count').html(parseInt($('#task-count').html(), 10) + d.Tasks.length);
+                        //$('#task-header-count').html(parseInt($('#task-header-count').html(), 10) + d.Tasks.length);
+                        //$('#task-count').html(parseInt($('#task-count').html(), 10) + unreadCnt);
+                        $('#task-count').html(parseInt($('#task-count').html(), 10) + parseInt(unreadCnt_r));
+                    }
+                    $('#task-header-count').html(parseInt($('#task-header-count').html(), 10) + parseInt(unreadCnt));
+
+                    $('#tasks-ul').append(res);
+                },
+                false);
+        })
+        .trigger('click');
+
+        function searchUnfinished() {
+            var ul = $('#unfinished-tasks'),
+                ulF = $('#finished-tasks'),
+                ttCombo = $('#searchTaskTypeCombo'),
+                searchRecievedStartDate = $('#searchRecievedStartDate'),
+                searchRecievedEndDate = $('#searchRecievedEndDate'),
+                searchPlannedStartDate = $('#searchPlannedStartDate'),
+                searchPlannedEndDate = $('#searchPlannedEndDate'),
+                    COMPLETE = CompleteFromView,
+                     TaskTitle = $("#TaskTitle"),
+                     FromStaff = $("#FromStaff");
+
+            //var xx = searchRecievedStartDate.val();
+
+            //ul.empty();
+            //ulF.empty();
+
+            BT.Ajax.GET('@Url.Action("SearchUnFinishedTasks", "Home")',
+                {
+                    taskType: ttCombo.val(),
+                    recievedStartDate: searchRecievedStartDate.val(),
+                    recievedEndDate: searchRecievedEndDate.val(),
+                    plannedStartDate: searchPlannedStartDate.val(),
+                    plannedEndDate: searchPlannedEndDate.val(),
+                    COMPLETE: COMPLETE,
+                    TaskTitle: TaskTitle.val(),
+                    FromStaff: FromStaff.val()
+                },
+                function (d) {
+                    var res = '';
+
+                    $.each(d, function (i, v) {
+                        res += getTaskLiString(v);
+                    });
+                    if (CompleteFromView == "Y")
+                        ulF.html(res)
+                    else
+                        ul.html(res);
+
+                    subscribeToEvents();
+
+
+                },
+                false);
+        }
+
+
+
+        function searchUnfinishedSend() {
+            var ul = $('#unfinished-tasks-send'),
+                ulF = $('#finished-tasks-send'),
+                ttCombo = $('#searchTaskTypeComboSend'),
+                searchRecievedStartDate = $('#searchRecievedStartDateSend'),
+                searchRecievedEndDate = $('#searchRecievedEndDateSend'),
+                searchPlannedStartDate = $('#searchPlannedStartDateSend'),
+                searchPlannedEndDate = $('#searchPlannedEndDateSend'),
+                    COMPLETE = CompleteFromView,
+                     TaskTitle = $("#TaskTitleSend"),
+                     FromStaff = $("#FromStaffSend");
+
+            //var xx = searchRecievedStartDate.val();
+
+            //ul.empty();
+            //ulF.empty();
+
+            BT.Ajax.GET('@Url.Action("SearchUnFinishedTasksSend", "Home")',
+                {
+                    taskType: ttCombo.val(),
+                    recievedStartDate: searchRecievedStartDate.val(),
+                    recievedEndDate: searchRecievedEndDate.val(),
+                    plannedStartDate: searchPlannedStartDate.val(),
+                    plannedEndDate: searchPlannedEndDate.val(),
+                    COMPLETE: COMPLETE,
+                    TaskTitle: TaskTitle.val(),
+                    FromStaff: FromStaff.val()
+                },
+                function (d) {
+                    var res = '';
+
+                    $.each(d, function (i, v) {
+                        res += getTaskLiStringSend(v);
+                    });
+                    if (CompleteFromView == "Y")
+                        ulF.html(res)
+                    else
+                        ul.html(res);
+
+                    subscribeToEvents();
+
+
+                },
+                false);
+        }
+
+        $('.search-tasks').off('click').on('click', function (e) {
+
+
+
+            CompleteFromView = $(this).attr("typeTask")
+            var dialog = $('#modal-task-search'),
+                searchBtn = $('#searchTasksBtn'),
+                clearBtn = $('#clearSearchTasksBtn'),
+                ttCombo = $('#searchTaskTypeCombo'),
+                searchRecievedStartDate = $('#searchRecievedStartDate'),
+                searchRecievedEndDate = $('#searchRecievedEndDate'),
+                searchPlannedStartDate = $('#searchPlannedStartDate'),
+                searchPlannedEndDate = $('#searchPlannedEndDate');
+
+            $(document).on("click", "#ResetFinished", function () {
+                var obj = $(this);
+                CompleteFromView = "Y";
+                ResetFilters()
+                searchUnfinished();
+                obj.hide();
+                $(".f_task-types-chk").each(function () {
+                    $(this).prop("checked", true)
+                })
+            });
+
+            $(document).on("click", "#ResetUnfinished", function () {
+                var obj = $(this);
+                CompleteFromView = "N";
+                ResetFilters()
+                searchUnfinished();
+                obj.hide();
+
+
+                $(".unf_task-types-chk").each(function () {
+                    $(this).prop("checked", true)
+                })
+            });
+
+            clearBtn.off('click').on('click', function () {
+
+                var combobox = ttCombo.data('kendoComboBox');
+                combobox.select(-1);
+                ttCombo.val('');
+
+                var srsd = searchRecievedStartDate.data('kendoDatePicker');
+                srsd.value(new Date());
+                searchRecievedStartDate.val('');
+
+                var sred = searchRecievedEndDate.data('kendoDatePicker');
+                sred.value(new Date());
+                searchRecievedEndDate.val('');
+
+                var spsd = searchPlannedStartDate.data('kendoDatePicker');
+                spsd.value(new Date());
+                searchPlannedStartDate.val('');
+
+                var sped = searchPlannedEndDate.data('kendoDatePicker');
+                sped.value(new Date());
+                searchPlannedEndDate.val('');
+                $("#TaskTitle").val("")
+                multiselect.value("")
+                searchUnfinished();
+            });
+
+            searchBtn.off('click').on('click', function () {
+
+                searchUnfinished();
+                if (CompleteFromView == "Y")
+                    $("#ResetFinished").show();
+                else
+                    $("#ResetUnfinished").show();
+
+                dialog.modal('hide');
+
+
+            });
+
+            dialog.modal('show');
+
+        });
+
+        $('.search-tasks-send').off('click').on('click', function (e) {
+
+
+            CompleteFromView = $(this).attr("typeTask");
+            var dialog = $('#modal-task-search-send'),
+                searchBtn = $('#searchTasksBtnSend'),
+                clearBtn = $('#clearSearchTasksBtnSend'),
+                ttCombo = $('#searchTaskTypeComboSend'),
+                searchRecievedStartDate = $('#searchRecievedStartDateSend'),
+                searchRecievedEndDate = $('#searchRecievedEndDateSend'),
+                searchPlannedStartDate = $('#searchPlannedStartDateSend'),
+                searchPlannedEndDate = $('#searchPlannedEndDateSend');
+
+            $(document).on("click", "#ResetFinishedSend", function () {
+                var obj = $(this);
+                CompleteFromView = "Y";
+                ResetFiltersSend();
+                searchUnfinishedSend();
+                obj.hide();
+                $(".f_task-types-chk").each(function () {
+                    $(this).prop("checked", true)
+                })
+            });
+
+            $(document).on("click", "#ResetUnfinishedsend", function () {
+                var obj = $(this);
+                CompleteFromView = "N";
+                ResetFiltersSend();
+                searchUnfinishedSend();
+                obj.hide();
+
+
+                $(".unf_task-types-chk").each(function () {
+                    $(this).prop("checked", true)
+                })
+            });
+
+            clearBtn.off('click').on('click', function () {
+
+                var combobox = ttCombo.data('kendoComboBox');
+                combobox.select(-1);
+                ttCombo.val('');
+
+                var srsd = searchRecievedStartDate.data('kendoDatePicker');
+                srsd.value(new Date());
+                searchRecievedStartDate.val('');
+
+                var sred = searchRecievedEndDate.data('kendoDatePicker');
+                sred.value(new Date());
+                searchRecievedEndDate.val('');
+
+                var spsd = searchPlannedStartDate.data('kendoDatePicker');
+                spsd.value(new Date());
+                searchPlannedStartDate.val('');
+
+                var sped = searchPlannedEndDate.data('kendoDatePicker');
+                sped.value(new Date());
+                searchPlannedEndDate.val('');
+                $("#TaskTitleSend").val("")
+                multiselect.value("")
+                searchUnfinished();
+            });
+
+            searchBtn.off('click').on('click', function () {
+
+                searchUnfinishedSend();
+                if (CompleteFromView == "Y")
+                    $("#ResetFinishedSend").show();
+                else
+                    $("#ResetUnfinishedsend").show();
+
+                dialog.modal('hide');
+
+
+            });
+
+            dialog.modal('show');
+
+        });
+    });
+    function clear() {
+
+    }
+</script>

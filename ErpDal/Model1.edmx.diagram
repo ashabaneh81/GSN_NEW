@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="bd2317cf11c14d4284da75c457a7083d" Name="Diagram1">
+        <EntityTypeShape EntityType="Model.ACCOUNT" Width="1.5" PointX="9.75" PointY="52.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.ACCOUNT_BANK_ACCOUNTS_ERP" Width="1.5" PointX="14.25" PointY="56.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.ACCOUNT_BANK_ERP" Width="1.5" PointX="12" PointY="55.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.ACCOUNT_SECTION_ERP" Width="1.5" PointX="12" PointY="53.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.BANK_HERP" Width="1.5" PointX="18" PointY="81" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.BRANCH_HERP" Width="1.5" PointX="18" PointY="84.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.BUDGETS_ACCOUNT_ERP" Width="1.5" PointX="14.25" PointY="70.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.CHECK_STATUS_ERP" Width="1.5" PointX="15" PointY="66.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.CHEQUES_DATA_ERP" Width="1.5" PointX="17.25" PointY="65.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.COLLECTORS_BOXES_ERP" Width="1.5" PointX="24.75" PointY="69.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.CRNOTES_DTL_ERP" Width="1.5" PointX="17.25" PointY="74.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.CRNOTES_MAS_ERP" Width="1.5" PointX="14.25" PointY="75.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.CRNOTES_WK_ERP" Width="1.5" PointX="27" PointY="91.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.CRNOTES_WKSETUP_ERP" Width="1.5" PointX="24.75" PointY="82.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.CURN" Width="1.5" PointX="15" PointY="63.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.CURN_RATES" Width="1.5" PointX="17.25" PointY="44.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.DEPT_ERP" Width="1.5" PointX="24.75" PointY="85.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.EMPLOYEE_HERP" Width="1.5" PointX="20.25" PointY="61.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.FN" Width="1.5" PointX="14.25" PointY="88.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.FS" Width="1.5" PointX="3" PointY="0.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.FS_GROUP_ERP" Width="1.5" PointX="0.75" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.FUND" Width="1.5" PointX="12" PointY="88" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.FUNDERS_ERP" Width="1.5" PointX="15.75" PointY="47.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.JOURNAL" Width="1.5" PointX="27.75" PointY="84.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.JOURNAL_DETAILS" Width="1.5" PointX="22.5" PointY="64.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.JOURNAL_TYPES_ERP" Width="1.5" PointX="25.5" PointY="79.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.JOURNAL_WK_ERP" Width="1.5" PointX="30" PointY="95.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.JOURNAL_WKSETUP_ERP" Width="1.5" PointX="24.75" PointY="97.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.LEVEL0" Width="1.5" PointX="0.75" PointY="56.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.LEVEL1" Width="1.5" PointX="3" PointY="55.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.LEVEL2" Width="1.5" PointX="5.25" PointY="55.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.LEVEL3" Width="1.5" PointX="7.5" PointY="55.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.MUN_CLASS_DTL_ERP" Width="1.5" PointX="9.75" PointY="47.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.MUN_CLASS_MAS_ERP" Width="1.5" PointX="7.5" PointY="48.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.PR" Width="1.5" PointX="0.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.SECTIONS_ERP" Width="1.5" PointX="30" PointY="85.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.STAFF_ERP" Width="1.5" PointX="22.5" PointY="83.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.STAKEHOLDER_EMPLOYEES_ERP" Width="1.5" PointX="22.5" PointY="74.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.STAKEHOLDERS_ACCOUNTS_ERP" Width="1.5" PointX="15" PointY="53.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.STAKEHOLDERS_ERP" Width="1.5" PointX="12.75" PointY="34.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.STAKEHOLDERS_RELATING_ERP" Width="1.5" PointX="15" PointY="42.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.TASK_ERP" Width="1.5" PointX="24.75" PointY="100.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.TRANS" Width="1.5" PointX="18" PointY="49.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model.UNITS_ERP" Width="1.5" PointX="32.25" PointY="85.25" IsExpanded="true" />
+        <AssociationConnector Association="Model.ACCOUNT_BANK_ACCOUNTS_FK" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.ACCOUNT_CC_ERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.ACCOUNT_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.ACTFK" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.BUDGETS_ACCOUNT_ERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CHEQUES_DATA_ERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CONSTRAINT9" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CRNOTES_DTL_ERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CRNOTES_MAS_ERP_FK4" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.FUND_FK2" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.FUND_FK3" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.JOURNAL_DETAILS_FK4" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00185061" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00185981" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00186078" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.ACCOUNT_BANK_BANKS_FK" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CHEQUES_DATA_ERP_FK4" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.JOURNAL_DETAILS_FK6" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00185899" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00185967" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.ACCOUNT_SECTION_ERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.BRANCH_HERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.EMPLOYEE_HERP_FK11" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00185663" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.EMPLOYEE_HERP_FK12" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.BUDGETS_ACCOUNT_ERP_FK2" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.BUDGETS_ACCOUNT_ERP_FK3" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CHEQUES_DATA_ERP_FK6" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CHEQUES_DATA_ERP_FK2" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CHEQUES_DATA_ERP_FK3" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CHEQUES_DATA_ERP_FK5" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CHEQUES_DATA_ERP_FK7" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00184616" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.COLLECTORS_BOXES_ERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.JOURNAL_DETAILS_FK5" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00185966" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CRNOTES_DTL_ERP_FK3" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CRNOTES_DTL_ERP_FK4" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00184489" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00184490" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00184491" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00184492" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00184494" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CRNOTES_MAS_ERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CRNOTES_MAS_ERP_FK2" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CRNOTES_MAS_ERP_FK3" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CRNOTES_MAS_ERP_FK5" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CRNOTES_WK_ERP_FK2" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00184484" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00184485" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CRNOTES_WK_ERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CRNOTES_WK_ERP_FK3" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CRNOTES_WKSETUP_ERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.CRFK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.JOURNAL_DETAILS_FK2" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.DEPT_ERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.DEPT_ERP_FK2" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.DEPT_ERP_FK3" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.EMPLOYEE_HERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SECTIONS_ERP_FK2" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.EMPLOYEE_HERP_FK2" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.EMPLOYEE_HERP_FK3" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.EMPLOYEE_HERP_FK9" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.JOURNAL_DETAILS_FK7" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.STAFF_ERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.STAKEHOLDER_EMPLOYEES_ERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00184228" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.FN_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00185632" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.FS_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00185662" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.TRANS_FK2" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.JOURNAL_DETAILS_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.JOURNAL_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.JOURNAL_FK2" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.JOURNAL_FK3" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.JOURNAL_WK_ERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00183699" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.JOURNAL_DETAILS_FK3" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.JOURNAL_DETAILS_FK8" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00183693" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.JOURNAL_WK_ERP_FK2" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.JOURNAL_WK_ERP_FK3" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.JOURNAL_WK_ERP_FK4" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.JOURNAL_WKSETUP_ERP_FK3" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.LEVEL1FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.LEVEL2FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.LEVEL3FK2" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.MUN_CLASS_DTL_ERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00185134" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.TRANS_FK5" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SECTIONS_ERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.UNITS_ERP_FK1" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.TASK_ERP_FK2" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.TASK_ERP_FK3" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.TRANS_FK4" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.UNITS_ERP_FK2" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.STAKEHOLDER_EMPLOYEES_ERP_FK2" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.STAKEHOLDER_FK" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00185351" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00185352" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.TRANS_FK3" ManuallyRouted="false" />
+        <AssociationConnector Association="Model.SYS_C00182767" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="Model.UNITS_ACCOUNTS_ERP" Width="1.5" PointX="34.5" PointY="69.375" />
+        <AssociationConnector Association="Model.UNITS_ACCOUNTS_ACCOUNT_FK" />
+        <AssociationConnector Association="Model.UNITS_ACCOUNTS_UNITS_FK" />
+        <EntityTypeShape EntityType="Model.FIXED_ERP" Width="1.5" PointX="3.375" PointY="4.75" />
+        <EntityTypeShape EntityType="Model.DRNOTES_DTL_ERP" Width="1.5" PointX="34.5" PointY="60.75" />
+        <EntityTypeShape EntityType="Model.DRNOTES_MAS_ERP" Width="1.5" PointX="30" PointY="61" />
+        <EntityTypeShape EntityType="Model.DRNOTES_WK_ERP" Width="1.5" PointX="35.25" PointY="84.375" />
+        <EntityTypeShape EntityType="Model.DRNOTES_WKSETUP_ERP" Width="1.5" PointX="33" PointY="80.625" />
+        <EntityTypeShape EntityType="Model.FIXED_PRINT_ERP" Width="1.5" PointX="5.375" PointY="0.75" />
+        <EntityTypeShape EntityType="Model.GROUPS_ERP" Width="1.5" PointX="22.5" PointY="93.125" />
+        <EntityTypeShape EntityType="Model.GROUPS_STAFF_ERP" Width="1.5" PointX="24.75" PointY="91.625" />
+        <EntityTypeShape EntityType="Model.HR_FUNCTION_PERP" Width="1.5" PointX="30.75" PointY="80.875" />
+        <EntityTypeShape EntityType="Model.PYVC_ATTACHMENTS_ERP" Width="1.5" PointX="32.25" PointY="47.75" />
+        <EntityTypeShape EntityType="Model.PYVC_DTL_ERP" Width="1.5" PointX="32.25" PointY="56.375" />
+        <EntityTypeShape EntityType="Model.PYVC_ERP" Width="1.5" PointX="30" PointY="44.625" />
+        <EntityTypeShape EntityType="Model.RCVC_ATTACHMENTS_ERP" Width="1.5" PointX="36.75" PointY="47.375" />
+        <EntityTypeShape EntityType="Model.RCVC_DTL_ERP" Width="1.5" PointX="36.75" PointY="65.5" />
+        <EntityTypeShape EntityType="Model.RCVC_ERP" Width="1.5" PointX="34.5" PointY="44.125" />
+        <EntityTypeShape EntityType="Model.RCVC_WK_ERP" Width="1.5" PointX="36.75" PointY="75.875" />
+        <EntityTypeShape EntityType="Model.RCVC_WKSETUP_ERP" Width="1.5" PointX="34.5" PointY="76.125" />
+        <AssociationConnector Association="Model.DRNOTES_DTL_ERP_FK3" />
+        <AssociationConnector Association="Model.DRNOTES_MAS_ERP_FK1" />
+        <AssociationConnector Association="Model.PYVC_DTL_ERP_FK3" />
+        <AssociationConnector Association="Model.PYVC_ERP_FK1" />
+        <AssociationConnector Association="Model.RCVC_DTL_ERP_FK2" />
+        <AssociationConnector Association="Model.RYVC_ERP_FK1" />
+        <AssociationConnector Association="Model.PYVC_DTL_ERP_FK6" />
+        <AssociationConnector Association="Model.PYVC_DTL_ERP_FK8" />
+        <AssociationConnector Association="Model.RCVC_DTL_ERP_FK6" />
+        <AssociationConnector Association="Model.SYS_C00185915" />
+        <AssociationConnector Association="Model.SYS_C00185475" />
+        <AssociationConnector Association="Model.SYS_C00185464" />
+        <AssociationConnector Association="Model.PYVC_DTL_ERP_FK7" />
+        <AssociationConnector Association="Model.RCVC_DTL_ERP_FK8" />
+        <AssociationConnector Association="Model.RCVC_ERP_FK3" />
+        <AssociationConnector Association="Model.SYS_C00185914" />
+        <AssociationConnector Association="Model.CRNOTES_WKSETUP_ERP_FK2" />
+        <AssociationConnector Association="Model.CRNOTES_WKSETUP_ERP_FK3" />
+        <AssociationConnector Association="Model.DRNOTES_MAS_ERP_FK5" />
+        <AssociationConnector Association="Model.PYVC_DTL_ERP_FK2" />
+        <AssociationConnector Association="Model.PYVC_ERP_FK4" />
+        <AssociationConnector Association="Model.RCVC_DTL_ERP_FK5" />
+        <AssociationConnector Association="Model.DRNOTES_DTL_ERP_FK1" />
+        <AssociationConnector Association="Model.DRNOTES_DTL_ERP_FK2" />
+        <AssociationConnector Association="Model.SYS_C00184319" />
+        <AssociationConnector Association="Model.SYS_C00184320" />
+        <AssociationConnector Association="Model.SYS_C00184322" />
+        <AssociationConnector Association="Model.SYS_C00184323" />
+        <AssociationConnector Association="Model.SYS_C00184324" />
+        <AssociationConnector Association="Model.DRNOTES_MAS_ERP_FK2" />
+        <AssociationConnector Association="Model.DRNOTES_MAS_ERP_FK3" />
+        <AssociationConnector Association="Model.DRNOTES_MAS_ERP_FK4" />
+        <AssociationConnector Association="Model.DRNOTES_WK_ERP_FK3" />
+        <AssociationConnector Association="Model.SYS_C00184314" />
+        <AssociationConnector Association="Model.SYS_C00184315" />
+        <AssociationConnector Association="Model.DRNOTES_WK_ERP_FK1" />
+        <AssociationConnector Association="Model.DRNOTES_WK_ERP_FK2" />
+        <AssociationConnector Association="Model.DRNOTES_WK_ERP_FK4" />
+        <AssociationConnector Association="Model.DRNOTES_WKSETUP_ERP_FK1" />
+        <AssociationConnector Association="Model.DRNOTES_WKSETUP_ERP_FK2" />
+        <AssociationConnector Association="Model.DRNOTES_WKSETUP_ERP_FK3" />
+        <AssociationConnector Association="Model.PYVC_ERP_FK10" />
+        <AssociationConnector Association="Model.RCVC_ERP_FK2" />
+        <AssociationConnector Association="Model.PYVC_ERP_FK7" />
+        <AssociationConnector Association="Model.RYVC_ERP_FK6" />
+        <AssociationConnector Association="Model.PYVC_ERP_FK3" />
+        <AssociationConnector Association="Model.RCVC_DTL_ERP_FK7" />
+        <AssociationConnector Association="Model.SYS_C00185465" />
+        <AssociationConnector Association="Model.GROUPS_STAFF_ERP_FK2" />
+        <AssociationConnector Association="Model.JOURNAL_WKSETUP_ERP_FK1" />
+        <AssociationConnector Association="Model.RCVC_WKSETUP_ERP_FK2" />
+        <AssociationConnector Association="Model.GROUPS_STAFF_ERP_FK1" />
+        <AssociationConnector Association="Model.JOURNAL_WKSETUP_ERP_FK2" />
+        <AssociationConnector Association="Model.RCVC_WKSETUP_ERP_FK3" />
+        <AssociationConnector Association="Model.SYS_C00185467" />
+        <AssociationConnector Association="Model.SYS_C00185490" />
+        <AssociationConnector Association="Model.PYVC_DTL_ERP_FK5" />
+        <AssociationConnector Association="Model.PYVC_ERP_FK9" />
+        <AssociationConnector Association="Model.RCVC_DTL_ERP_FK4" />
+        <AssociationConnector Association="Model.SYS_C00185466" />
+        <AssociationConnector Association="Model.PYVC_ERP_FK6" />
+        <AssociationConnector Association="Model.RYVC_ERP_FK3" />
+        <AssociationConnector Association="Model.PYVC_ATTACHMENTS_ERP_FK1" />
+        <AssociationConnector Association="Model.PYVC_DTL_ERP_FK1" />
+        <AssociationConnector Association="Model.PYVC_ERP_FK2" />
+        <AssociationConnector Association="Model.SYS_C00183231" />
+        <AssociationConnector Association="Model.RCVC_ATTACHMENTS_ERP_FK1" />
+        <AssociationConnector Association="Model.RCVC_DTL_ERP_FK1" />
+        <AssociationConnector Association="Model.RCVC_ERP_FK1" />
+        <AssociationConnector Association="Model.RCVC_WK_ERP_FK1" />
+        <AssociationConnector Association="Model.RYVC_ERP_FK7" />
+        <AssociationConnector Association="Model.SYS_C00183213" />
+        <AssociationConnector Association="Model.RCVC_WK_ERP_FK2" />
+        <AssociationConnector Association="Model.RCVC_WK_ERP_FK3" />
+        <AssociationConnector Association="Model.RCVC_WK_ERP_FK4" />
+        <AssociationConnector Association="Model.RCVC_WKSETUP_ERP_FK1" />
+        <EntityTypeShape EntityType="Model.DEPOSIT_ATTACHMENTS_ERP" Width="1.5" PointX="39.25" PointY="55.25" />
+        <EntityTypeShape EntityType="Model.DEPOSIT_BANK_DTL_ERP" Width="1.5" PointX="42.25" PointY="68.125" />
+        <EntityTypeShape EntityType="Model.DEPOSIT_BANK_ERP" Width="1.5" PointX="37" PointY="52.875" />
+        <EntityTypeShape EntityType="Model.DEPOSIT_WK_ERP" Width="1.5" PointX="39.25" PointY="80.625" />
+        <EntityTypeShape EntityType="Model.DEPOSIT_WKSETUP_ERP" Width="1.5" PointX="35" PointY="89.125" />
+        <EntityTypeShape EntityType="Model.ILTIZAM" Width="1.5" PointX="37" PointY="33.125" />
+        <EntityTypeShape EntityType="Model.ILTIZAM_ATTACHMENTS_ERP" Width="1.5" PointX="39.25" PointY="60.375" />
+        <EntityTypeShape EntityType="Model.ILTIZAM_DETAILS" Width="1.5" PointX="42.25" PointY="62" />
+        <EntityTypeShape EntityType="Model.ILTIZAM_WK_ERP" Width="1.5" PointX="39.25" PointY="70.75" />
+        <EntityTypeShape EntityType="Model.ILTIZAM_WKSETUP_ERP" Width="1.5" PointX="37" PointY="61" />
+        <EntityTypeShape EntityType="Model.PYVC_WK_ERP" Width="1.5" PointX="32.25" PointY="75.5" />
+        <EntityTypeShape EntityType="Model.PYVC_WKSETUP_ERP" Width="1.5" PointX="30" PointY="75.75" />
+        <AssociationConnector Association="Model.DEPOSIT_BANK_DTL_ERP_FK2" />
+        <AssociationConnector Association="Model.DEPOSIT_BANK_ERP_FK1" />
+        <AssociationConnector Association="Model.ILTIZAM_DETAILS_FK101" />
+        <AssociationConnector Association="Model.ILTIZAM_FK2" />
+        <AssociationConnector Association="Model.SYS_C00185932" />
+        <AssociationConnector Association="Model.SYS_C00185713" />
+        <AssociationConnector Association="Model.ILTIZAM_FK6" />
+        <AssociationConnector Association="Model.SYS_C00185934" />
+        <AssociationConnector Association="Model.DEPOSIT_ATTACHMENTS_ERP_FK1" />
+        <AssociationConnector Association="Model.DEPOSIT_BANK_DTL_ERP_FK1" />
+        <AssociationConnector Association="Model.DEPOSIT_BANK_DTL_ERP_FK4" />
+        <AssociationConnector Association="Model.DEPOSIT_BANK_ERP_FK2" />
+        <AssociationConnector Association="Model.DEPOSIT_BANK_ERP_FK4" />
+        <AssociationConnector Association="Model.DEPOSIT_BANK_ERP_FK5" />
+        <AssociationConnector Association="Model.DEPOSIT_BANK_ERP_FK7" />
+        <AssociationConnector Association="Model.DEPOSIT_BANK_ERP_FK8" />
+        <AssociationConnector Association="Model.DEPOSIT_WK_ERP_FK3" />
+        <AssociationConnector Association="Model.SYS_C00184390" />
+        <AssociationConnector Association="Model.SYS_C00184391" />
+        <AssociationConnector Association="Model.DEPOSIT_WK_ERP_FK1" />
+        <AssociationConnector Association="Model.DEPOSIT_WK_ERP_FK2" />
+        <AssociationConnector Association="Model.DEPOSIT_WK_ERP_FK4" />
+        <AssociationConnector Association="Model.DEPOSIT_WKSETUP_ERP_FK1" />
+        <AssociationConnector Association="Model.DEPOSIT_WKSETUP_ERP_FK2" />
+        <AssociationConnector Association="Model.DEPOSIT_WKSETUP_ERP_FK4" />
+        <AssociationConnector Association="Model.SYS_C00185712" />
+        <AssociationConnector Association="Model.ILTIZAM_FK11" />
+        <AssociationConnector Association="Model.ILTIZAM_DETAILS_FK3" />
+        <AssociationConnector Association="Model.ILTIZAM_FK4" />
+        <AssociationConnector Association="Model.ILTIZAM_FK100" />
+        <AssociationConnector Association="Model.ILTIZAM_DETAILS_FK2" />
+        <AssociationConnector Association="Model.ILTIZAM_FK3" />
+        <AssociationConnector Association="Model.SYS_C00185710" />
+        <AssociationConnector Association="Model.ILTIZAM_WKSETUP_ERP_FK3" />
+        <AssociationConnector Association="Model.PYVC_WKSETUP_ERP_FK1" />
+        <AssociationConnector Association="Model.ILTIZAM_WKSETUP_ERP_FK2" />
+        <AssociationConnector Association="Model.PYVC_WKSETUP_ERP_FK2" />
+        <AssociationConnector Association="Model.ILTIZAM_DETAILS_FK1" />
+        <AssociationConnector Association="Model.ILTIZAM_FK1" />
+        <AssociationConnector Association="Model.ILTIZAM_FK10" />
+        <AssociationConnector Association="Model.ILTIZAM_FK5" />
+        <AssociationConnector Association="Model.ILTIZAM_FK8" />
+        <AssociationConnector Association="Model.ILTIZAM_FK9" />
+        <AssociationConnector Association="Model.ILTIZAM_WK_ERP_FK4" />
+        <AssociationConnector Association="Model.SYS_C00183811" />
+        <AssociationConnector Association="Model.SYS_C00185711" />
+        <AssociationConnector Association="Model.SYS_C00183803" />
+        <AssociationConnector Association="Model.ILTIZAM_DETAILS_FK8" />
+        <AssociationConnector Association="Model.SYS_C00183801" />
+        <AssociationConnector Association="Model.ILTIZAM_WK_ERP_FK1" />
+        <AssociationConnector Association="Model.ILTIZAM_WK_ERP_FK2" />
+        <AssociationConnector Association="Model.ILTIZAM_WK_ERP_FK3" />
+        <AssociationConnector Association="Model.ILTIZAM_WKSETUP_ERP_FK1" />
+        <AssociationConnector Association="Model.PYVC_WK_ERP_FK4" />
+        <AssociationConnector Association="Model.PYVC_WK_ERP_FK1" />
+        <AssociationConnector Association="Model.PYVC_WK_ERP_FK2" />
+        <AssociationConnector Association="Model.PYVC_WK_ERP_FK3" />
+        <AssociationConnector Association="Model.PYVC_WKSETUP_ERP_FK3" />
+        <EntityTypeShape EntityType="Model.ORACLE_ERROR_ERP" Width="1.5" PointX="5.375" PointY="5.75" />
+        <EntityTypeShape EntityType="Model.NOTIFICATION_ERP" Width="1.5" PointX="27" PointY="96.375" />
+        <AssociationConnector Association="Model.NOTIFICATION_ERP_FK1" />
+        <AssociationConnector Association="Model.NOTIFICATION_ERP_FK2" />
+        <AssociationConnector Association="Model.NOTIFICATION_ERP_FK3" />
+        <EntityTypeShape EntityType="Model.GROUP_MODULES" Width="1.5" PointX="30.75" PointY="91.75" />
+        <EntityTypeShape EntityType="Model.GROUPS" Width="1.5" PointX="28.5" PointY="102.25" />
+        <EntityTypeShape EntityType="Model.MODULES" Width="1.5" PointX="28.5" PointY="80.5" />
+        <EntityTypeShape EntityType="Model.STAFF_VIEWS" Width="1.5" PointX="24.75" PointY="75.75" />
+        <AssociationConnector Association="Model.SYS_C00183864" />
+        <AssociationConnector Association="Model.SYS_C00185745" />
+        <AssociationConnector Association="Model.SYS_C00185746" />
+        <AssociationConnector Association="Model.SYS_C00183869" />
+        <AssociationConnector Association="Model.SYS_C00185362" />
+        <EntityTypeShape EntityType="Model.VIEWS" Width="1.5" PointX="33.75" PointY="93.5" />
+        <AssociationConnector Association="Model.SYS_C00185101" />
+        <AssociationConnector Association="Model.SYS_C00185102" />
+        <AssociationConnector Association="Model.SYS_C00183014" />
+        <EntityTypeShape EntityType="Model.CONTROLLERS_GROUPS_ERP" Width="1.5" PointX="24.75" PointY="113.125" />
+        <EntityTypeShape EntityType="Model.CONTROLLERS_TABLE_ERP" Width="1.5" PointX="7.375" PointY="0.875" />
+        <AssociationConnector Association="Model.SYS_C00184542" />
+        <AssociationConnector Association="Model.SYS_C00185100" />
+        <EntityTypeShape EntityType="Model.TASK_ATTACHMENTS_ERP" Width="1.5" PointX="27" PointY="105.5" />
+        <EntityTypeShape EntityType="Model.TASK_TYPES_ERP" Width="1.5" PointX="7.375" PointY="5" />
+        <AssociationConnector Association="Model.SYS_C00182832" />
+        <AssociationConnector Association="Model.TASK_ERP_FK1" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

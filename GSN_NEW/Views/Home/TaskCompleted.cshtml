@@ -1,0 +1,292 @@
+﻿@using GSN_NEW.Models
+@model TasksModel
+
+@Html.Partial("GridBundle")
+
+
+<style>
+    .k-grid-content {
+        height: 100% !important;
+    }
+</style>
+<div class="k-rtl" style="height: 600px !important">
+    <div class="col-sm-12 col-xs-12">
+
+
+        @(Html.Kendo().Grid<TasksModel>()
+                      .Name("taskCompleted")
+                          .Events(e => e.DataBound("OnDataBoundTC"))
+                      .Columns(columns =>
+                      {
+                          columns.Bound(c => c).Title("التفاصيل").Sortable(false).Filterable(false).ClientTemplate(
+        "<a  class='orange tooltip-warning details' data-taskid='#:TaskID #' data-rel='tooltip' data-placement='left' title='التفاصيل'>" +
+        "<i class='ace-icon glyphicon glyphicon-info-sign bigger-130'></i></a>")
+            .Width(60);
+                          columns.Bound(c => c.TaskID).Title("رقم متسلسل").ClientTemplate("<span id=\"TaskID\">#: TaskID #</span>").Width(150);
+                          columns.Bound(b => b.FROM_STAFF).Title("من الموظف")
+                                     .Filterable(filter =>
+                                     {
+                                         filter.Extra(false);
+                                         filter.Operators(op =>
+                                         {
+                                             op.ForString(str => str.Clear());
+                                             op.ForString(str =>
+                                             {
+                                                 str.Clear().Contains("Contains");
+                                             });
+                                         });
+                                     }).Width(150);
+                          columns.Bound(b => b.NAME_AR).Title(" المهمة ").Width(150)
+                              .Filterable(filter =>
+                          {
+                              filter.Extra(false);
+                              filter.Operators(op =>
+                              {
+                                  op.ForString(str => str.Clear());
+                                  op.ForString(str =>
+                                  {
+                                      str.Clear().Contains("Contains");
+                                  });
+                              });
+                          });
+                          columns.Bound(b => b.Form_ID).Title("رقم المصدر").ClientTemplate("<span id=\"formId\">#: Form_ID #</span>")
+                              .Filterable(filter =>
+                              {
+                                  filter.Extra(false);
+                                  filter.Operators(op =>
+                                  {
+                                      op.ForString(str => str.Clear());
+                                      op.ForString(str =>
+                                      {
+                                          str.Clear().Contains("Contains");
+                                      });
+                                  });
+                              }).Width(150);
+                          columns.Bound(b => b.SenderWard).Title("اسم الجهة المعنية المرسلة للوارد").Width(150);
+                  columns.Bound(b => b.TITLE).Title("العنوان").Filterable(filter =>
+                          {
+                              filter.Extra(false);
+                              filter.Operators(op =>
+                              {
+                                  op.ForString(str => str.Clear());
+                                  op.ForString(str =>
+                                  {
+                                      str.Clear().Contains("Contains");
+                                  });
+                              });
+                          }).Width(150);
+
+                          columns.Bound(b => b.TASK_TYPE_AR).Title("نوع المهمة").Filterable(filter =>
+                          {
+                              filter.Extra(false);
+                              filter.Operators(op =>
+                              {
+                                  op.ForString(str => str.Clear());
+                                  op.ForString(str =>
+                                  {
+                                      str.Clear().Contains("Contains");
+                                  });
+                              });
+                          }).Width(150);
+                          columns.Bound(b => b.TASK_TYPE_ID).ClientTemplate("<span id=\"typeId\">#: TASK_TYPE_ID #</span>").Hidden(true).Width(150);
+                          columns.Bound(b => b.IS_MANUAL).Hidden(true).Width(150);
+                          columns.Bound(b => b.URL).ClientTemplate("<span id=\"urlC\">#: URL #</span>").Hidden(true).Width(150);
+                          columns.Bound(b => b.DATE_CREATED).Title(" تاريخ انشاء المهمة").Width(150);
+                          columns.Bound(c => c.ACTUAL_STRAT_DATE).Title("تاريخ البداية الفعلي").Width(150);
+                          columns.Bound(c => c.COMPLETE_DATE).Title("تاريخ الانهاء").Width(150);
+                          columns.Bound(b => b.PLANNED_START_DATE).Title("تاريخ البداية المخطط").Width(150);
+                          columns.Bound(c => c.PLANNED_END_DATE).Title("تاريخ الانهاء المخطط").Width(150);
+                          columns.Bound(c => c.DESCRIPTION).Title("وصف المهمة").Width(150).Filterable(filter =>
+                          {
+                              filter.Extra(false);
+                              filter.Operators(op =>
+                              {
+                                  op.ForString(str => str.Clear());
+                                  op.ForString(str =>
+                                  {
+                                      str.Clear().Contains("Contains");
+                                  });
+                              });
+                          });
+                          columns.Bound(c => c.NOTES).Title("ملاحظات الموظف المرسل اليه").Filterable(filter =>
+                          {
+                              filter.Extra(false);
+                              filter.Operators(op =>
+                              {
+                                  op.ForString(str => str.Clear());
+                                  op.ForString(str =>
+                                  {
+                                      str.Clear().Contains("Contains");
+                                  });
+                              });
+                          }).Width(150);
+                          columns.Command(commands =>
+                          {
+                      //commands.Custom("Watch").Text("مشاهدة").Click("ShowInfo5");
+                  }).Title("اوامر").Width(200).Hidden(true).HtmlAttributes(new { @class = "commandsCol" });
+
+
+
+                      })
+                      .ToolBar(toolbar =>
+                      {
+                  //toolbar.Create().Text("أضف سطر");
+                  toolbar.Excel();
+                  //toolbar.Pdf();
+
+
+
+              })
+                      .Editable(editable => editable.Mode(GridEditMode.InLine)) // Use inline editing mode
+                      .AutoBind(false)
+                      .Scrollable()
+                      .Groupable()
+                      //.Navigatable()
+                      .Excel(x => x.FileName("Incoming.xlsx").Filterable(true).ProxyURL(Url.Action("Excel_Export_Save", "Bulding")))
+
+                      .Resizable(resize => resize.Columns(true))
+                      .Selectable(selectable => selectable.Mode(GridSelectionMode.Multiple))
+                      .Pageable(x => x.Refresh(true).PageSizes(true).ButtonCount(5).PageSizes(new List<int> { 10, 20, 50, 100, 200 }))
+                      .Sortable(sortable => sortable
+                          .AllowUnsort(true)
+                          .SortMode(GridSortMode.MultipleColumn))
+                      .Reorderable(reorder => reorder.Columns(true))
+                      .Filterable(ftb => ftb.Mode(GridFilterMode.Row))
+                      //.AutoBind(false)
+                      .DataSource(dataSource => dataSource
+
+                          .Ajax()
+                          .Model(model =>
+                          {
+                              model.Id(x => x.TaskID); // Specify the property which is the unique identifier of the model
+                      model.Field(f => f.TaskID).Editable(false);
+
+
+
+
+                          })
+                          .Sort(sort => sort.Add("TaskID").Descending())
+
+                                  .Read(read => read.Action("ReadTaskCompleted", "Home"))
+                      )
+        )
+
+    </div>
+</div>
+<script>
+    function openWindowWithPostTask1(url, data) {
+        var form = document.createElement("form");
+        form.target = "_blank";
+        form.method = "POST";
+        form.action = url;
+        form.style.display = "none";
+
+        for (var key in data) {
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = key;
+            input.value = data[key];
+            form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
+
+    function OnDataBoundTC(e) {
+        $(document).on('click','.details', function (e) {
+            var el = $(this),
+                id = el.data('taskid'),
+                dialog = $('#modal-task-details'),
+                taskNameAr = $('#taskNameAr'),
+                taskNameEn = $('#taskNameEn'),
+                taskTypeNameAr = $('#taskTypeNameAr'),
+                taskDateCreated = $('#taskDateCreated'),
+                taskFromStaff = $('#taskFromStaff'),
+                taskCompleted = $('#taskCompleted'),
+                taskDateCompleted = $('#taskDateCompleted'),
+                taskPlannedStartDate = $('#taskPlannedStartDate'),
+                taskActualStartDate = $('#taskActualStartDate'),
+                taskPlannedEndDate = $('#taskPlannedEndDate'),
+                taskActualEndDate = $('#taskActualEndDate'),
+                memoType = $('#memoType'),
+                taskDescription = $('#taskDescription'),
+                taskNote = $('#taskNote');
+
+            BT.Ajax.GET('@Url.Action("GetTaskDetails", "Home")',
+                { id: id },
+                function (d) {
+                    $('.memo').addClass('hide');
+                    $("#tMemo").val("");
+                    $("#subMemo").val("");
+                    $("#textMemo").val("");
+                    taskNameAr.val(d.TaskName);
+                    taskNameEn.val(d.TaskNameEn);
+                    taskTypeNameAr.val(d.TaskTypeAr);
+                    taskDateCreated.val(BT.DateTime.getDate(d.DateCreated));
+                    taskFromStaff.val(d.FromStaffName);
+                    taskCompleted.val(d.Complete === 'Y' ? 'نعم' : 'لا');
+                    taskDateCompleted.val(d.DateCompleted!=null?BT.DateTime.getDate(d.DateCompleted):"");
+                    taskPlannedStartDate.val(BT.DateTime.getDate(d.PlannedStartDate));
+                    taskActualStartDate.val(d.ActualStartDate!=null?BT.DateTime.getDate(d.ActualStartDate):"");
+                    taskPlannedEndDate.val(BT.DateTime.getDate(d.PlannedEndDate));
+                    taskActualEndDate.val(d.ActualEndDate!=null?BT.DateTime.getDate(d.ActualEndDate):"");
+                    taskDescription.val(d.Description);
+                    taskNote.val(d.NOTES);
+                    if (d.MemoId != null) {
+                        $('.memo').removeClass('hide');
+                        memoType.val(d.TypeMemo);
+                    }
+                    dialog.modal('show');
+                    if (d.MemoId != null) {
+                        $('#memoType1').off('click').on('click', function () {
+                            var lnk = "@Url.Action("Index", "GetMemo")";
+                            openWindowWithPostTask1(lnk, { memoId: d.MemoId });
+                        });
+                        dialog.modal('show');
+                    }
+
+                    el.closest('li').css('background-color', '#FFF');
+                },
+                false);
+            $(".closeMemo").click(function() {
+                $('.memo').addClass('hide');
+                $("#tMemo").val("");
+                $("#subMemo").val("");
+                $("#textMemo").val("");
+            });
+
+        });
+    }
+
+
+    $(document).on("dblclick", '#taskCompleted table tr', function () {
+        var url = $(this).find("#urlC").html();
+        var typeId = $(this).find("#typeId").html();
+        var rootDir = "@Url.Content("~/")";
+        if (url != "null") {
+            if (url.includes("&amp;")) {
+                url = url.replace("&amp;", "&");
+            }
+            if (typeId == "8") {
+                var formId = $(this).find("#formId").html();
+                var lnk = "@Url.Action("ServiceFormInputInternet", "service")";
+                openWindowWithPostTask1(lnk, { idForm:formId });
+            } else {
+                url = rootDir + url;
+                window.open(url, '_blank');
+            }
+
+        }
+
+    });
+    $(document).ready(function () {
+
+    });
+    function readTaskCompleted()
+    {
+        var grid = $("#taskCompleted").data("kendoGrid");
+        grid.dataSource.read();
+    }
+</script>

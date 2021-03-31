@@ -1,0 +1,14 @@
+D:\GSN_NEW\ErpDal\bin\Debug\ErpDal.dll.config
+D:\GSN_NEW\ErpDal\bin\Debug\ErpDal.dll
+D:\GSN_NEW\ErpDal\bin\Debug\ErpDal.pdb
+D:\GSN_NEW\ErpDal\bin\Debug\EntityFramework.dll
+D:\GSN_NEW\ErpDal\bin\Debug\EntityFramework.SqlServer.dll
+D:\GSN_NEW\ErpDal\bin\Debug\Oracle.ManagedDataAccess.dll
+D:\GSN_NEW\ErpDal\bin\Debug\Oracle.ManagedDataAccess.EntityFramework.dll
+D:\GSN_NEW\ErpDal\bin\Debug\EntityFramework.xml
+D:\GSN_NEW\ErpDal\bin\Debug\EntityFramework.SqlServer.xml
+D:\GSN_NEW\ErpDal\obj\Debug\ErpDal.dll
+D:\GSN_NEW\ErpDal\obj\Debug\ErpDal.pdb
+D:\GSN_NEW\ErpDal\obj\Debug\ErpDal.csproj.CoreCompileInputs.cache
+D:\GSN_NEW\ErpDal\obj\Debug\ErpDal.csproj.CopyComplete
+D:\GSN_NEW\ErpDal\obj\Debug\ErpDal.csprojAssemblyReference.cache
